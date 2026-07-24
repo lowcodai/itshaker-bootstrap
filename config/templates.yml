@@ -1,0 +1,71 @@
+# config/templates.yml
+# Mapping type de projet -> fichiers à inclure depuis le template correspondant
+# Utilisé par apply-template.sh
+
+defaults: &defaults
+  files:
+    - README.md
+    - CHANGELOG.md
+    - BACKLOG.md
+    - ROADMAP.md
+    - AGENTS.md
+    - CONTRIBUTING.md
+    - SECURITY.md
+    - SUPPORT.md
+    - LICENSE
+    - docs/adr/.gitkeep
+    - docs/architecture/.gitkeep
+    - docs/runbooks/.gitkeep
+    - .github/copilot-instructions.md
+    - .github/PULL_REQUEST_TEMPLATE.md
+    - .github/ISSUE_TEMPLATE/bug_report.yml
+    - .github/ISSUE_TEMPLATE/feature_request.yml
+    - .github/workflows/ci.yml
+    - .github/workflows/governance-check.yml
+
+templates:
+  base:
+    <<: *defaults
+    source_repo: itshaker-template-base
+    description: "Template générique pour tout nouveau projet"
+    extra_files: []
+
+  infra:
+    <<: *defaults
+    source_repo: itshaker-template-infra
+    description: "Template pour projets infrastructure, SRE, Ansible, Docker, monitoring"
+    extra_files:
+      - ansible/inventory/.gitkeep
+      - ansible/playbooks/.gitkeep
+      - ansible/roles/.gitkeep
+      - docker/.gitkeep
+      - monitoring/dashboards/.gitkeep
+      - monitoring/alerts/.gitkeep
+      - cmdb/.gitkeep
+      - .github/workflows/ansible-lint.yml
+      - .github/workflows/docker-build.yml
+      - .github/workflows/infrastructure-scan.yml
+
+  ai:
+    <<: *defaults
+    source_repo: itshaker-template-ai
+    description: "Template pour projets IA, agents, MCP, prompts, RAG, LLM Wiki"
+    extra_files:
+      - agents/.gitkeep
+      - prompts/.gitkeep
+      - mcp/.gitkeep
+      - rag/.gitkeep
+      - llm-wiki/.gitkeep
+      - .github/workflows/ai-safety-check.yml
+      - .github/workflows/model-eval.yml
+
+  app:
+    <<: *defaults
+    source_repo: itshaker-template-app
+    description: "Template pour applications web, API, MVP, portail, SaaS ou outil interne"
+    extra_files:
+      - src/.gitkeep
+      - tests/.gitkeep
+      - public/.gitkeep
+      - .github/workflows/release.yml
+      - .github/workflows/a11y-check.yml

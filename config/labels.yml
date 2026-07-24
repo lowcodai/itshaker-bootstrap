@@ -1,0 +1,77 @@
+# config/labels.yml
+# Labels GitHub standards créés par init-labels.sh
+# Format: name, color (hex sans #), description
+
+labels:
+  # Type d'issue
+  - name: "type: bug"
+    color: "d73a4a"
+    description: "Quelque chose ne fonctionne pas"
+  - name: "type: feature"
+    color: "0075ca"
+    description: "Nouvelle fonctionnalité ou amélioration"
+  - name: "type: chore"
+    color: "e4e669"
+    description: "Tâche de maintenance, refactoring"
+  - name: "type: docs"
+    color: "0052cc"
+    description: "Documentation uniquement"
+  - name: "type: security"
+    color: "b60205"
+    description: "Problème de sécurité"
+  - name: "type: adr"
+    color: "5319e7"
+    description: "Architecture Decision Record"
+
+  # Priorité
+  - name: "priority: critical"
+    color: "b60205"
+    description: "Priorité critique — à traiter immédiatement"
+  - name: "priority: high"
+    color: "e99695"
+    description: "Priorité haute"
+  - name: "priority: medium"
+    color: "fbca04"
+    description: "Priorité moyenne"
+  - name: "priority: low"
+    color: "c2e0c6"
+    description: "Priorité basse"
+
+  # Statut
+  - name: "status: in-progress"
+    color: "0075ca"
+    description: "En cours de traitement"
+  - name: "status: blocked"
+    color: "d93f0b"
+    description: "Bloqué — en attente de résolution"
+  - name: "status: needs-review"
+    color: "fbca04"
+    description: "En attente de revue"
+  - name: "status: wontfix"
+    color: "ffffff"
+    description: "Ne sera pas corrigé"
+
+  # Composant
+  - name: "component: ci-cd"
+    color: "1d76db"
+    description: "Pipeline CI/CD"
+  - name: "component: docs"
+    color: "0052cc"
+    description: "Documentation"
+  - name: "component: governance"
+    color: "5319e7"
+    description: "Gouvernance et politiques"
+  - name: "component: security"
+    color: "b60205"
+    description: "Sécurité"
+
+  # Copilot spécifique
+  - name: "copilot: agent"
+    color: "7b2d8b"
+    description: "Lié aux agents Copilot"
+  - name: "copilot: skill"
+    color: "7b2d8b"
+    description: "Lié aux skills Copilot"
+  - name: "copilot: instruction"
+    color: "7b2d8b"
+    description: "Lié aux instructions Copilot"
