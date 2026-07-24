@@ -35,6 +35,7 @@ export DRY_RUN=false
 export VERBOSE=false
 export EXTEND_ONLY=false
 export FORCE=false
+export AUTO_YES=false
 
 TEMPLATE_TYPE=""
 REPO_NAME=""
@@ -110,6 +111,7 @@ parse_args() {
       --verbose)            VERBOSE=true; shift ;;
       --extend-only)        EXTEND_ONLY=true; shift ;;
       --force)              FORCE=true; shift ;;
+      --yes|-y)             AUTO_YES=true; shift ;;
       --no-adr)             NO_ADR=true; shift ;;
       --no-labels)          NO_LABELS=true; shift ;;
       --skip-awesome-copilot) SKIP_AWESOME_COPILOT=true; shift ;;

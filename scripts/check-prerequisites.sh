@@ -18,12 +18,12 @@ check_tool() {
   if ! command -v "$tool" &>/dev/null; then
     if [[ "$required" == "true" ]]; then
       log_error "MANQUANT (requis): $tool${install_url:+ — $install_url}"
-      ((ERRORS++))
+      ERRORS=$((ERRORS + 1))
     else
       log_warn "MANQUANT (optionnel): $tool${install_url:+ — $install_url}"
-      ((WARNINGS++))
+      WARNINGS=$((WARNINGS + 1))
     fi
-    return 1
+    return 0
   fi
 
   local version
@@ -49,8 +49,9 @@ get_version() {
 check_bash_version() {
   local major="${BASH_VERSINFO[0]}"
   if (( major < 4 )); then
-    log_error "Bash >= 4.0 requis (trouvé: bash $major). Sur macOS: brew install bash"
-    ((ERRORS++))
+    log_warn "Bash >= 4.0 recommandé (trouvé: bash $major). Sur macOS: brew install bash"
+    log_warn "Les scripts fonctionnent en bash 3 mais bash 4 est préférable."
+    WARNINGS=$((WARNINGS + 1))
   else
     log_success "Version bash OK: ${BASH_VERSION}"
   fi
@@ -64,7 +65,7 @@ check_gh_auth() {
     log_success "GitHub CLI authentifié en tant que: $user"
   else
     log_warn "GitHub CLI non authentifié — lancer: gh auth login"
-    ((WARNINGS++))
+    WARNINGS=$((WARNINGS + 1))
   fi
 }
 
@@ -79,7 +80,7 @@ check_gh_skills_support() {
     log_success "gh skills install supporté (gh $gh_ver >= 2.90.0)"
   else
     log_warn "gh skills install nécessite gh >= 2.90.0 (trouvé: $gh_ver) — fallback manuel activé"
-    ((WARNINGS++))
+    WARNINGS=$((WARNINGS + 1))
   fi
 }
 

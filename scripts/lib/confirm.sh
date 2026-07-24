@@ -9,6 +9,10 @@ confirm() {
   if [[ "${FORCE:-false}" == "true" ]] && [[ "${2:-}" != "require_explicit" ]]; then
     return 0
   fi
+  if [[ "${AUTO_YES:-false}" == "true" ]] && [[ "${2:-}" != "require_explicit" ]]; then
+    echo -e "${_CLR_INFO}[AUTO]${_CLR_RESET} $message → oui (--yes)" >&2
+    return 0
+  fi
   echo -e "${_CLR_WARN}[?]${_CLR_RESET} $message [y/N] " >&2
   read -r -n 1 response
   echo >&2
