@@ -7,6 +7,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BOOTSTRAP_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 source "${SCRIPT_DIR}/lib/log.sh"
 source "${SCRIPT_DIR}/lib/gh.sh"
+source "${SCRIPT_DIR}/lib/fs.sh"
 
 : "${DRY_RUN:=false}"
 : "${VERBOSE:=false}"
