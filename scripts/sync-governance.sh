@@ -101,25 +101,25 @@ sync_instructions() {
   for f in \
     "devops-core-principles.instructions.md" \
     "github-actions-ci-cd-best-practices.instructions.md"; do
-    [[ -f "${src}/${f}" ]] && copy_if_not_exists "${src}/${f}" "${dest}/${f}"
+    [[ -f "${src}/${f}" ]] && copy_if_not_exists "${src}/${f}" "${dest}/${f}" || true
   done
 
   # Éléments spécifiques par type
   case "$TEMPLATE_TYPE" in
     infra)
       for f in "ansible.instructions.md" "containerization-docker-best-practices.instructions.md"; do
-        [[ -f "${src}/${f}" ]] && copy_if_not_exists "${src}/${f}" "${dest}/${f}"
+        [[ -f "${src}/${f}" ]] && copy_if_not_exists "${src}/${f}" "${dest}/${f}" || true
       done
       ;;
     ai)
       for f in "agent-safety.instructions.md" "agent-skills.instructions.md" \
                "ai-prompt-engineering-safety-best-practices.instructions.md"; do
-        [[ -f "${src}/${f}" ]] && copy_if_not_exists "${src}/${f}" "${dest}/${f}"
+        [[ -f "${src}/${f}" ]] && copy_if_not_exists "${src}/${f}" "${dest}/${f}" || true
       done
       ;;
     app)
       for f in "a11y.instructions.md" "containerization-docker-best-practices.instructions.md"; do
-        [[ -f "${src}/${f}" ]] && copy_if_not_exists "${src}/${f}" "${dest}/${f}"
+        [[ -f "${src}/${f}" ]] && copy_if_not_exists "${src}/${f}" "${dest}/${f}" || true
       done
       ;;
   esac
@@ -140,26 +140,26 @@ sync_hooks() {
 
   # Hooks communs (tous les types)
   for hook in "tool-guardian" "secrets-scanner" "governance-audit"; do
-    [[ -d "${src}/${hook}" ]] && copy_dir_if_not_exists "${src}/${hook}" "${dest}/${hook}"
+    [[ -d "${src}/${hook}" ]] && copy_dir_if_not_exists "${src}/${hook}" "${dest}/${hook}" || true
   done
 
   # Hooks par type
   case "$TEMPLATE_TYPE" in
     infra|ai|app)
       for hook in "dependency-license-checker" "fix-broken-links"; do
-        [[ -d "${src}/${hook}" ]] && copy_dir_if_not_exists "${src}/${hook}" "${dest}/${hook}"
+        [[ -d "${src}/${hook}" ]] && copy_dir_if_not_exists "${src}/${hook}" "${dest}/${hook}" || true
       done
       ;;
   esac
 
   if [[ "$TEMPLATE_TYPE" == "infra" ]] || [[ "$TEMPLATE_TYPE" == "ai" ]]; then
     [[ -d "${src}/attester-import-check" ]] && \
-      copy_dir_if_not_exists "${src}/attester-import-check" "${dest}/attester-import-check"
+      copy_dir_if_not_exists "${src}/attester-import-check" "${dest}/attester-import-check" || true
   fi
 
   if [[ "$TEMPLATE_TYPE" == "ai" ]]; then
     [[ -d "${src}/session-logger" ]] && \
-      copy_dir_if_not_exists "${src}/session-logger" "${dest}/session-logger"
+      copy_dir_if_not_exists "${src}/session-logger" "${dest}/session-logger" || true
   fi
 }
 
@@ -178,17 +178,17 @@ sync_agents() {
 
   # Agent universel: ADR generator
   [[ -f "${src}/adr-generator.agent.md" ]] && \
-    copy_if_not_exists "${src}/adr-generator.agent.md" "${dest}/adr-generator.agent.md"
+    copy_if_not_exists "${src}/adr-generator.agent.md" "${dest}/adr-generator.agent.md" || true
 
   case "$TEMPLATE_TYPE" in
     ai)
       for agent in "ai-readiness-reporter.agent.md" "agent-governance-reviewer.agent.md" "ai-team-dev.agent.md"; do
-        [[ -f "${src}/${agent}" ]] && copy_if_not_exists "${src}/${agent}" "${dest}/${agent}"
+        [[ -f "${src}/${agent}" ]] && copy_if_not_exists "${src}/${agent}" "${dest}/${agent}" || true
       done
       ;;
     app)
       for agent in "accessibility.agent.md" "accessibility-runtime-tester.agent.md"; do
-        [[ -f "${src}/${agent}" ]] && copy_if_not_exists "${src}/${agent}" "${dest}/${agent}"
+        [[ -f "${src}/${agent}" ]] && copy_if_not_exists "${src}/${agent}" "${dest}/${agent}" || true
       done
       ;;
   esac
@@ -206,13 +206,13 @@ sync_templates() {
 
   # PULL_REQUEST_TEMPLATE (si pas déjà créé par apply-template.sh)
   [[ -f "${src}/PULL_REQUEST_TEMPLATE.md" ]] && \
-    copy_if_not_exists "${src}/PULL_REQUEST_TEMPLATE.md" "${DEST_DIR}/.github/PULL_REQUEST_TEMPLATE.md"
+    copy_if_not_exists "${src}/PULL_REQUEST_TEMPLATE.md" "${DEST_DIR}/.github/PULL_REQUEST_TEMPLATE.md" || true
 
   # ISSUE_TEMPLATE
   run_cmd mkdir -p "${DEST_DIR}/.github/ISSUE_TEMPLATE"
   if [[ -d "${src}/ISSUE_TEMPLATE" ]]; then
     for tmpl in "${src}/ISSUE_TEMPLATE/"*.yml; do
-      [[ -f "$tmpl" ]] && copy_if_not_exists "$tmpl" "${DEST_DIR}/.github/ISSUE_TEMPLATE/$(basename "$tmpl")"
+      [[ -f "$tmpl" ]] && copy_if_not_exists "$tmpl" "${DEST_DIR}/.github/ISSUE_TEMPLATE/$(basename "$tmpl")" || true
     done
   fi
 }

@@ -366,9 +366,13 @@ step_init_github() {
       gh_user=$(gh api user --jq '.login' 2>/dev/null || echo "")
       full_name="${gh_user}/${REPO_NAME}"
     }
-    bash "${SCRIPT_DIR}/init-labels.sh" --repo "$full_name" ${DRY_RUN:+--dry-run} || \
+    local labels_args=(--repo "$full_name")
+    [[ "$DRY_RUN" == "true" ]] && labels_args+=(--dry-run)
+    bash "${SCRIPT_DIR}/init-labels.sh" "${labels_args[@]}" || \
       WARNINGS_LIST+=("Labels non créés")
-    bash "${SCRIPT_DIR}/init-milestones.sh" --repo "$full_name" ${DRY_RUN:+--dry-run} || \
+    local milestones_args=(--repo "$full_name")
+    [[ "$DRY_RUN" == "true" ]] && milestones_args+=(--dry-run)
+    bash "${SCRIPT_DIR}/init-milestones.sh" "${milestones_args[@]}" || \
       WARNINGS_LIST+=("Milestones non créés")
     ACTIONS_DONE+=("Labels et milestones créés")
   fi
