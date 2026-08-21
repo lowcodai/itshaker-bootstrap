@@ -559,12 +559,32 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Scan for secrets
+        with:
+          fetch-depth: 0
+      # Sur un push, `base`/`head` doivent être les commits before/after du push (pas
+      # "main"/HEAD, qui pointent sur le même commit une fois checkout effectué — TruffleHog
+      # sort alors en erreur avec "BASE and HEAD commits are the same"). `before` vaut le SHA nul
+      # sur le tout premier push d'une branche : on scanne alors tout l'historique (aucun `base`)
+      # plutôt que de planter.
+      - name: Scan for secrets (push)
+        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
-          base: ${{ github.event.repository.default_branch }}
-          head: HEAD
+          base: ${{ github.event.before }}
+          head: ${{ github.event.after }}
+      - name: Scan for secrets (push — premier commit de la branche)
+        if: github.event_name == 'push' && github.event.before == '0000000000000000000000000000000000000000'
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+      - name: Scan for secrets (pull_request)
+        if: github.event_name == 'pull_request'
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.pull_request.base.sha }}
+          head: ${{ github.event.pull_request.head.sha }}
 EOF
     log_success "Créé: .github/workflows/ci.yml"
   else
