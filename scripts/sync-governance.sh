@@ -194,6 +194,39 @@ sync_agents() {
   esac
 }
 
+# Synchronise le contrat de continuité Hermes (ADR-0021) depuis governance.
+# Commun à tous les types de projet — la continuité de contexte n'est pas
+# spécifique à base|infra|ai|app.
+sync_hermes() {
+  log_section "Synchronisation du contrat de continuité Hermes"
+  local src="${GOVERNANCE_DIR}/hermes"
+
+  if [[ ! -d "$src" ]]; then
+    log_warn "Répertoire hermes/ manquant: $src"
+    return
+  fi
+
+  # .hermes.md — substitution du nom de projet (PROJECT_NAME déduit de DEST_DIR sauf
+  # override via --project-name). CONTEXT_WINDOW_TOKENS reste un placeholder : à vérifier
+  # et renseigner manuellement dans le projet cible (dépend du modèle qui sert la session,
+  # pas de ce script).
+  local project_name="${PROJECT_NAME:-$(basename "$DEST_DIR")}"
+  if [[ -f "${DEST_DIR}/.hermes.md" ]]; then
+    log_skip "${DEST_DIR}/.hermes.md"
+  else
+    write_template "${src}/.hermes.md" "${DEST_DIR}/.hermes.md" "PROJECT_NAME=${project_name}"
+  fi
+
+  # Squelette docs/operations/ — copié une seule fois, jamais écrasé (copy_if_not_exists) :
+  # un CURRENT.md déjà en usage ne doit jamais être remplacé par le squelette vide.
+  local ops_dest="${DEST_DIR}/docs/operations"
+  run_cmd mkdir -p "$ops_dest"
+  for f in CURRENT.md HANDOFF.md ACTIVITY.md; do
+    [[ -f "${src}/docs-operations-templates/${f}" ]] && \
+      copy_if_not_exists "${src}/docs-operations-templates/${f}" "${ops_dest}/${f}" || true
+  done
+}
+
 # Synchronise les templates standards depuis governance
 sync_templates() {
   log_section "Synchronisation des templates standards"
@@ -233,6 +266,7 @@ main() {
   sync_hooks
   sync_agents
   sync_templates
+  sync_hermes
 
   log_success "Synchronisation gouvernance terminée"
 }
