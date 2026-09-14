@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-# lib/confirm.sh — Fonctions de confirmation interactive
+# lib/confirm.sh — Interactive confirmation functions
 # Source: source "$(dirname "$0")/lib/confirm.sh"
 
-# Demande confirmation Y/N
-# Usage: confirm "Message" && echo "Confirmé"
+# Ask for Y/N confirmation
+# Usage: confirm "Message" && echo "Confirmed"
 confirm() {
-  local message="${1:-Continuer ?}"
+  local message="${1:-Continue?}"
   if [[ "${FORCE:-false}" == "true" ]] && [[ "${2:-}" != "require_explicit" ]]; then
     return 0
   fi
   if [[ "${AUTO_YES:-false}" == "true" ]] && [[ "${2:-}" != "require_explicit" ]]; then
-    echo -e "${_CLR_INFO}[AUTO]${_CLR_RESET} $message → oui (--yes)" >&2
+    echo -e "${_CLR_INFO}[AUTO]${_CLR_RESET} $message → yes (--yes)" >&2
     return 0
   fi
   echo -e "${_CLR_WARN}[?]${_CLR_RESET} $message [y/N] " >&2
@@ -19,25 +19,25 @@ confirm() {
   [[ "$response" =~ ^[yY]$ ]]
 }
 
-# Confirmation explicite requise (pour opérations destructrices)
-# L'utilisateur doit taper "yes" en entier
+# Explicit confirmation required (for destructive operations)
+# The user must type "yes" in full
 # Usage: confirm_destructive "Message" "CONFIRM_PHRASE"
 confirm_destructive() {
-  local message="${1:-Opération destructrice}"
+  local message="${1:-Destructive operation}"
   local expected="${2:-yes}"
   echo -e "${_CLR_ERROR}[DANGER]${_CLR_RESET} $message" >&2
-  echo -e "Tapez '${expected}' pour confirmer : " >&2
+  echo -e "Type '${expected}' to confirm: " >&2
   read -r response
   if [[ "$response" != "$expected" ]]; then
-    log_error "Opération annulée."
+    log_error "Operation cancelled."
     return 1
   fi
   return 0
 }
 
-# Sélection parmi des options numérotées
-# Usage: select_option "Titre" "opt1" "opt2" "opt3"
-# Retourne la valeur choisie dans $SELECTED
+# Selection among numbered options
+# Usage: select_option "Title" "opt1" "opt2" "opt3"
+# Returns the chosen value in $SELECTED
 select_option() {
   local title="$1"
   shift
@@ -49,11 +49,11 @@ select_option() {
     echo "  $i) $opt" >&2
     ((i++))
   done
-  echo -n "Votre choix [1-${#options[@]}]: " >&2
+  echo -n "Your choice [1-${#options[@]}]: " >&2
   read -r choice
 
   if ! [[ "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 )) || (( choice > ${#options[@]} )); then
-    log_error "Choix invalide: $choice"
+    log_error "Invalid choice: $choice"
     return 1
   fi
   SELECTED="${options[$((choice - 1))]}"

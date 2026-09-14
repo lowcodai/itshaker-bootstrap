@@ -1,36 +1,36 @@
 #!/usr/bin/env bash
-# new-project.sh — Point d'entrée principal de la factory itshaker
+# new-project.sh — Main entry point of the itshaker factory
 #
 # Usage: ./scripts/new-project.sh [OPTIONS]
 #
 # Options:
-#   -t, --type <base|infra|ai|app>   Type de template
-#   -n, --name <repo-name>            Nom du repository
-#   -v, --visibility <public|private> Visibilité GitHub (défaut: private)
-#   -o, --org <org>                   Organisation GitHub (optionnel)
-#   -d, --output-dir <path>           Répertoire de destination (défaut: ../<name>)
-#       --no-github                   Ne pas créer le repo sur GitHub
-#       --dry-run                     Mode simulation sans modification
-#       --verbose                     Logging détaillé
-#       --extend-only                 Ajoute uniquement les fichiers manquants
-#       --force                       Écrase les fichiers existants (confirmation requise)
-#       --no-adr                      Ne pas générer ADR-0001
-#       --no-labels                   Ne pas créer les labels GitHub
-#       --skip-awesome-copilot        Ne pas installer les éléments awesome-copilot
-#   -h, --help                        Aide
+#   -t, --type <base|infra|ai|app>   Template type
+#   -n, --name <repo-name>            Repository name
+#   -v, --visibility <public|private> GitHub visibility (default: private)
+#   -o, --org <org>                   GitHub organization (optional)
+#   -d, --output-dir <path>           Destination directory (default: ../<name>)
+#       --no-github                   Do not create the repo on GitHub
+#       --dry-run                     Simulation mode without changes
+#       --verbose                     Detailed logging
+#       --extend-only                 Only add missing files
+#       --force                       Overwrite existing files (confirmation required)
+#       --no-adr                      Do not generate ADR-0001
+#       --no-labels                   Do not create GitHub labels
+#       --skip-awesome-copilot        Do not install awesome-copilot items
+#   -h, --help                        Help
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BOOTSTRAP_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
-# Importer les librairies
+# Import libraries
 source "${SCRIPT_DIR}/lib/log.sh"
 source "${SCRIPT_DIR}/lib/fs.sh"
 source "${SCRIPT_DIR}/lib/confirm.sh"
 source "${SCRIPT_DIR}/lib/gh.sh"
 
-# ─── Variables globales ───────────────────────────────────────────────────────
+# ─── Global variables ──────────────────────────────────────────────────────────
 export DRY_RUN=false
 export VERBOSE=false
 export EXTEND_ONLY=false
@@ -46,14 +46,14 @@ NO_GITHUB=false
 NO_ADR=false
 NO_LABELS=false
 SKIP_AWESOME_COPILOT=false
-LANG_CODE="en"   # défaut: anglais. Override: --lang fr pour continuer une ligne française existante.
+LANG_CODE="en"   # Only 'en' is supported. The flag is kept for CLI compatibility; French generation has been retired.
 
-# Compteurs pour le résumé final
+# Counters for the final summary
 ACTIONS_DONE=()
 ACTIONS_SKIPPED=()
 WARNINGS_LIST=()
 
-# ─── Aide ────────────────────────────────────────────────────────────────────
+# ─── Help ──────────────────────────────────────────────────────────────────────
 show_help() {
   cat << 'EOF'
 itshaker-bootstrap — GitHub Template Factory
@@ -62,43 +62,43 @@ Usage:
   ./scripts/new-project.sh [OPTIONS]
 
 Options:
-  -t, --type <base|infra|ai|app>   Type de template (interactif si absent)
-  -n, --name <repo-name>            Nom du repository (interactif si absent)
-  -v, --visibility <public|private> Visibilité GitHub (défaut: private)
-  -o, --org <org>                   Organisation GitHub (optionnel)
-  -d, --output-dir <path>           Répertoire destination (défaut: ../<name>)
-      --no-github                   Pas de création GitHub (local seulement)
-      --dry-run                     Simulation: affiche les actions sans les faire
-      --verbose                     Log détaillé
-      --extend-only                 Ajoute uniquement les fichiers manquants
-      --force                       Écrase les fichiers existants (confirmation)
-      --no-adr                      Ne pas générer ADR-0001
-      --no-labels                   Ne pas créer les labels GitHub
-      --skip-awesome-copilot        Ne pas installer les éléments awesome-copilot
-  -h, --help                        Afficher cette aide
+  -t, --type <base|infra|ai|app>   Template type (interactive if omitted)
+  -n, --name <repo-name>            Repository name (interactive if omitted)
+  -v, --visibility <public|private> GitHub visibility (default: private)
+  -o, --org <org>                   GitHub organization (optional)
+  -d, --output-dir <path>           Destination directory (default: ../<name>)
+      --no-github                   No GitHub creation (local only)
+      --dry-run                     Simulation: shows actions without performing them
+      --verbose                     Detailed logging
+      --extend-only                 Only add missing files
+      --force                       Overwrite existing files (confirmation)
+      --no-adr                      Do not generate ADR-0001
+      --no-labels                   Do not create GitHub labels
+      --skip-awesome-copilot        Do not install awesome-copilot items
+  -h, --help                        Show this help
 
-Exemples:
-  # Création interactive
+Examples:
+  # Interactive creation
   ./scripts/new-project.sh
 
-  # Création directe, type infra, repo privé
-  ./scripts/new-project.sh -t infra -n mon-infra -v private --org itshaker
+  # Direct creation, infra type, private repo
+  ./scripts/new-project.sh -t infra -n my-infra -v private --org lowcodai
 
-  # Test en dry-run
+  # Dry-run test
   ./scripts/new-project.sh -t ai -n test-ai --dry-run --verbose
 
-  # Ajouter les fichiers manquants à un projet existant
-  ./scripts/new-project.sh -t base -n mon-projet --extend-only --no-github
+  # Add missing files to an existing project
+  ./scripts/new-project.sh -t base -n my-project --extend-only --no-github
 
 Sources:
-  Templates:   https://github.com/itshaker/itshaker-template-{base,infra,ai,app}
-  Gouvernance: https://github.com/itshaker/itshaker-copilot-governance
-  Bootstrap:   https://github.com/itshaker/itshaker-bootstrap
+  Templates:   https://github.com/lowcodai/itshaker-template-{base,infra,ai,app}
+  Governance:  https://github.com/lowcodai/itshaker-copilot-governance
+  Bootstrap:   https://github.com/lowcodai/itshaker-bootstrap
   Awesome Copilot: https://github.com/github/awesome-copilot
 EOF
 }
 
-# ─── Parsing des arguments ────────────────────────────────────────────────────
+# ─── Argument parsing ──────────────────────────────────────────────────────────
 parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -118,12 +118,12 @@ parse_args() {
       --no-labels)          NO_LABELS=true; shift ;;
       --skip-awesome-copilot) SKIP_AWESOME_COPILOT=true; shift ;;
       -h|--help)            show_help; exit 0 ;;
-      *)                    log_error "Argument inconnu: $1"; show_help; exit 1 ;;
+      *)                    log_error "Unknown argument: $1"; show_help; exit 1 ;;
     esac
   done
 }
 
-# ─── Validation des inputs ────────────────────────────────────────────────────
+# ─── Input validation ──────────────────────────────────────────────────────────
 validate_inputs() {
   local valid_types=("base" "infra" "ai" "app")
   if [[ -n "$TEMPLATE_TYPE" ]]; then
@@ -132,141 +132,141 @@ validate_inputs() {
       [[ "$TEMPLATE_TYPE" == "$t" ]] && valid=true && break
     done
     if [[ "$valid" == "false" ]]; then
-      log_error "Type invalide: $TEMPLATE_TYPE (valeurs: base|infra|ai|app)"
+      log_error "Invalid type: $TEMPLATE_TYPE (values: base|infra|ai|app)"
       exit 1
     fi
   fi
 
   if [[ -n "$REPO_NAME" ]]; then
     if ! [[ "$REPO_NAME" =~ ^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$ ]]; then
-      log_error "Nom de repo invalide: '$REPO_NAME'"
-      log_info "Règles: minuscules, chiffres et tirets uniquement, pas de tiret en début/fin"
+      log_error "Invalid repo name: '$REPO_NAME'"
+      log_info "Rules: lowercase letters, digits and hyphens only, no leading/trailing hyphen"
       exit 1
     fi
   fi
 
   if [[ "$VISIBILITY" != "public" ]] && [[ "$VISIBILITY" != "private" ]]; then
-    log_error "Visibilité invalide: $VISIBILITY (public|private)"
+    log_error "Invalid visibility: $VISIBILITY (public|private)"
     exit 1
   fi
 
   if [[ "$FORCE" == "true" ]] && [[ "$EXTEND_ONLY" == "true" ]]; then
-    log_error "--force et --extend-only sont incompatibles"
+    log_error "--force and --extend-only are incompatible"
     exit 1
   fi
 }
 
-# ─── Collecte interactive des paramètres ─────────────────────────────────────
+# ─── Interactive parameter collection ──────────────────────────────────────────
 collect_interactive_params() {
   echo ""
-  log_section "itshaker-bootstrap — Nouveau projet"
+  log_section "itshaker-bootstrap — New project"
   echo ""
 
-  # Type de template
+  # Template type
   if [[ -z "$TEMPLATE_TYPE" ]]; then
-    select_option "Type de template:" \
-      "base — Générique (tout projet)" \
+    select_option "Template type:" \
+      "base — Generic (any project)" \
       "infra — Infrastructure, SRE, Ansible, Docker" \
-      "ai — IA, agents, MCP, prompts, RAG" \
-      "app — Application web, API, SaaS"
+      "ai — AI, agents, MCP, prompts, RAG" \
+      "app — Web application, API, SaaS"
     TEMPLATE_TYPE="${SELECTED%% *}"
   fi
 
-  # Nom du repo
+  # Repo name
   if [[ -z "$REPO_NAME" ]]; then
     while true; do
-      echo -n "Nom du repository (ex: mon-projet): "
+      echo -n "Repository name (e.g. my-project): "
       read -r REPO_NAME
       if [[ "$REPO_NAME" =~ ^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$ ]]; then
         break
       fi
-      log_warn "Nom invalide. Utiliser: minuscules, chiffres, tirets (pas en début/fin)"
+      log_warn "Invalid name. Use: lowercase letters, digits, hyphens (not leading/trailing)"
     done
   fi
 
-  # Visibilité
+  # Visibility
   if [[ "$VISIBILITY" == "private" ]] && [[ "$NO_GITHUB" == "false" ]]; then
-    select_option "Visibilité GitHub:" "private (Recommandé)" "public"
+    select_option "GitHub visibility:" "private (Recommended)" "public"
     VISIBILITY="${SELECTED%% *}"
   fi
 
-  # Créer sur GitHub ?
+  # Create on GitHub?
   if [[ "$NO_GITHUB" == "false" ]]; then
-    if ! confirm "Créer le repository sur GitHub ?"; then
+    if ! confirm "Create the repository on GitHub?"; then
       NO_GITHUB=true
-      log_info "Mode local uniquement sélectionné"
+      log_info "Local-only mode selected"
     fi
   fi
 }
 
-# ─── Vérification du répertoire cible ────────────────────────────────────────
+# ─── Target directory check ────────────────────────────────────────────────────
 check_dest_dir() {
   [[ -z "$OUTPUT_DIR" ]] && OUTPUT_DIR="$(cd "${BOOTSTRAP_DIR}/.." && pwd)/${REPO_NAME}"
 
-  log_verbose "Répertoire cible: $OUTPUT_DIR"
+  log_verbose "Target directory: $OUTPUT_DIR"
 
   if [[ -d "$OUTPUT_DIR" ]]; then
     if [[ "$EXTEND_ONLY" == "true" ]]; then
-      log_info "Répertoire existant — mode extend-only activé: $OUTPUT_DIR"
+      log_info "Existing directory — extend-only mode enabled: $OUTPUT_DIR"
       return 0
     fi
 
     if [[ "$FORCE" == "true" ]]; then
       confirm_destructive \
-        "Le répertoire '$OUTPUT_DIR' existe déjà. Tous les fichiers conflictuels seront écrasés." \
+        "The directory '$OUTPUT_DIR' already exists. All conflicting files will be overwritten." \
         "CONFIRM_OVERWRITE" || exit 1
-      # Backup avant écrasement
+      # Backup before overwriting
       local backup="${OUTPUT_DIR}.backup.$(date +%Y%m%d%H%M%S)"
-      log_warn "Backup créé: $backup"
+      log_warn "Backup created: $backup"
       run_cmd cp -r "$OUTPUT_DIR" "$backup"
     else
-      log_error "Le répertoire '$OUTPUT_DIR' existe déjà."
+      log_error "The directory '$OUTPUT_DIR' already exists."
       log_info "Options:"
-      log_info "  --extend-only    pour ajouter uniquement les fichiers manquants"
-      log_info "  --force          pour écraser les fichiers existants (destructeur!)"
+      log_info "  --extend-only    to only add missing files"
+      log_info "  --force          to overwrite existing files (destructive!)"
       exit 1
     fi
   fi
 }
 
-# ─── Prérequis ────────────────────────────────────────────────────────────────
+# ─── Prerequisites ──────────────────────────────────────────────────────────────
 run_prerequisites_check() {
-  log_section "Vérification des prérequis"
+  log_section "Checking prerequisites"
   if ! bash "${SCRIPT_DIR}/check-prerequisites.sh" 2>&1; then
-    if ! confirm "Des avertissements ont été détectés. Continuer quand même ?"; then
-      log_error "Abandon sur vérification des prérequis"
+    if ! confirm "Warnings were detected. Continue anyway?"; then
+      log_error "Aborting on prerequisite check"
       exit 1
     fi
   fi
 }
 
-# ─── Affichage du récapitulatif avant action ──────────────────────────────────
+# ─── Display plan summary before acting ────────────────────────────────────────
 show_plan() {
-  log_section "Récapitulatif"
+  log_section "Summary"
   echo ""
-  echo "  Type de template  : ${TEMPLATE_TYPE}"
-  echo "  Nom du repo       : ${REPO_NAME}"
-  echo "  Répertoire        : ${OUTPUT_DIR}"
-  echo "  Visibilité GitHub : ${VISIBILITY}"
-  echo "  Créer sur GitHub  : $([[ "$NO_GITHUB" == "true" ]] && echo "Non" || echo "Oui")"
-  echo "  Mode dry-run      : ${DRY_RUN}"
-  echo "  Mode extend-only  : ${EXTEND_ONLY}"
-  echo "  Mode force        : ${FORCE}"
-  echo "  Awesome Copilot   : $([[ "$SKIP_AWESOME_COPILOT" == "true" ]] && echo "Ignoré" || echo "Oui")"
-  echo "  Générer ADR-0001  : $([[ "$NO_ADR" == "true" ]] && echo "Non" || echo "Oui")"
+  echo "  Template type     : ${TEMPLATE_TYPE}"
+  echo "  Repo name         : ${REPO_NAME}"
+  echo "  Directory         : ${OUTPUT_DIR}"
+  echo "  GitHub visibility : ${VISIBILITY}"
+  echo "  Create on GitHub  : $([[ "$NO_GITHUB" == "true" ]] && echo "No" || echo "Yes")"
+  echo "  Dry-run mode      : ${DRY_RUN}"
+  echo "  Extend-only mode  : ${EXTEND_ONLY}"
+  echo "  Force mode        : ${FORCE}"
+  echo "  Awesome Copilot   : $([[ "$SKIP_AWESOME_COPILOT" == "true" ]] && echo "Skipped" || echo "Yes")"
+  echo "  Generate ADR-0001 : $([[ "$NO_ADR" == "true" ]] && echo "No" || echo "Yes")"
   echo ""
 
   if [[ "${DRY_RUN:-false}" != "true" ]]; then
-    if ! confirm "Procéder à la création ?"; then
-      log_info "Opération annulée."
+    if ! confirm "Proceed with creation?"; then
+      log_info "Operation cancelled."
       exit 0
     fi
   fi
 }
 
-# ─── Étapes d'exécution ───────────────────────────────────────────────────────
+# ─── Execution steps ────────────────────────────────────────────────────────────
 step_apply_template() {
-  log_section "Étape 1/6 — Application du template"
+  log_section "Step 1/6 — Applying template"
   local args=(
     "--type" "$TEMPLATE_TYPE"
     "--name" "$REPO_NAME"
@@ -279,11 +279,11 @@ step_apply_template() {
   [[ "$FORCE" == "true" ]]       && args+=("--force")
 
   bash "${SCRIPT_DIR}/apply-template.sh" "${args[@]}"
-  ACTIONS_DONE+=("Template ${TEMPLATE_TYPE} appliqué")
+  ACTIONS_DONE+=("Template ${TEMPLATE_TYPE} applied")
 }
 
 step_sync_governance() {
-  log_section "Étape 2/6 — Synchronisation gouvernance"
+  log_section "Step 2/6 — Governance synchronization"
   local args=(
     "--type" "$TEMPLATE_TYPE"
     "--dest" "$OUTPUT_DIR"
@@ -294,17 +294,17 @@ step_sync_governance() {
   [[ "$EXTEND_ONLY" == "true" ]] && args+=("--extend-only")
 
   bash "${SCRIPT_DIR}/sync-governance.sh" "${args[@]}"
-  ACTIONS_DONE+=("Gouvernance synchronisée")
+  ACTIONS_DONE+=("Governance synchronized")
 }
 
 step_install_awesome_copilot() {
   if [[ "$SKIP_AWESOME_COPILOT" == "true" ]]; then
-    log_skip "Installation awesome-copilot (--skip-awesome-copilot)"
-    ACTIONS_SKIPPED+=("Éléments awesome-copilot")
+    log_skip "Awesome-copilot installation (--skip-awesome-copilot)"
+    ACTIONS_SKIPPED+=("Awesome-copilot items")
     return 0
   fi
 
-  log_section "Étape 3/6 — Installation awesome-copilot"
+  log_section "Step 3/6 — Installing awesome-copilot"
   local args=(
     "--type" "$TEMPLATE_TYPE"
     "--dest" "$OUTPUT_DIR"
@@ -314,17 +314,17 @@ step_install_awesome_copilot() {
   [[ "$EXTEND_ONLY" == "true" ]] && args+=("--extend-only")
 
   bash "${SCRIPT_DIR}/install-awesome-copilot.sh" "${args[@]}"
-  ACTIONS_DONE+=("Éléments awesome-copilot installés")
+  ACTIONS_DONE+=("Awesome-copilot items installed")
 }
 
 step_generate_adr() {
   if [[ "$NO_ADR" == "true" ]]; then
-    log_skip "Génération ADR-0001 (--no-adr)"
+    log_skip "ADR-0001 generation (--no-adr)"
     ACTIONS_SKIPPED+=("ADR-0001")
     return 0
   fi
 
-  log_section "Étape 4/6 — Génération ADR-0001"
+  log_section "Step 4/6 — Generating ADR-0001"
   local args=(
     "--dest" "$OUTPUT_DIR"
     "--name" "$REPO_NAME"
@@ -334,17 +334,17 @@ step_generate_adr() {
   [[ "$VERBOSE" == "true" ]] && args+=("--verbose")
 
   bash "${SCRIPT_DIR}/init-adr.sh" "${args[@]}"
-  ACTIONS_DONE+=("ADR-0001 généré")
+  ACTIONS_DONE+=("ADR-0001 generated")
 }
 
 step_init_github() {
   if [[ "$NO_GITHUB" == "true" ]]; then
-    log_skip "Création GitHub (--no-github)"
-    ACTIONS_SKIPPED+=("Repo GitHub")
+    log_skip "GitHub creation (--no-github)"
+    ACTIONS_SKIPPED+=("GitHub repo")
     return 0
   fi
 
-  log_section "Étape 5/6 — Initialisation GitHub"
+  log_section "Step 5/6 — GitHub initialization"
 
   local gh_args=(
     "--name" "$REPO_NAME"
@@ -356,13 +356,13 @@ step_init_github() {
   [[ "$VERBOSE" == "true" ]]  && gh_args+=("--verbose")
 
   bash "${SCRIPT_DIR}/init-github-repo.sh" "${gh_args[@]}" || {
-    log_warn "Échec création GitHub — continuer en mode local"
-    WARNINGS_LIST+=("Repo GitHub non créé (vérifier gh auth)")
+    log_warn "GitHub creation failed — continuing in local mode"
+    WARNINGS_LIST+=("GitHub repo not created (check gh auth)")
     return 0
   }
-  ACTIONS_DONE+=("Repo GitHub créé")
+  ACTIONS_DONE+=("GitHub repo created")
 
-  # Labels et milestones
+  # Labels and milestones
   if [[ "$NO_LABELS" != "true" ]]; then
     local full_name="${ORG:+${ORG}/}${REPO_NAME}"
     [[ -z "$ORG" ]] && {
@@ -373,89 +373,89 @@ step_init_github() {
     local labels_args=(--repo "$full_name")
     [[ "$DRY_RUN" == "true" ]] && labels_args+=(--dry-run)
     bash "${SCRIPT_DIR}/init-labels.sh" "${labels_args[@]}" || \
-      WARNINGS_LIST+=("Labels non créés")
+      WARNINGS_LIST+=("Labels not created")
     local milestones_args=(--repo "$full_name")
     [[ "$DRY_RUN" == "true" ]] && milestones_args+=(--dry-run)
     bash "${SCRIPT_DIR}/init-milestones.sh" "${milestones_args[@]}" || \
-      WARNINGS_LIST+=("Milestones non créés")
-    ACTIONS_DONE+=("Labels et milestones créés")
+      WARNINGS_LIST+=("Milestones not created")
+    ACTIONS_DONE+=("Labels and milestones created")
   fi
 }
 
 step_finalize() {
-  log_section "Étape 6/6 — Finalisation"
+  log_section "Step 6/6 — Finalization"
 
   if [[ "${DRY_RUN:-false}" != "true" ]]; then
-    # Écrire le log bootstrap dans le projet
+    # Write the bootstrap log into the project
     local log_file="${OUTPUT_DIR}/.bootstrap-log.txt"
     {
-      echo "# itshaker-bootstrap — Log de création"
+      echo "# itshaker-bootstrap — Creation log"
       echo "Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
       echo "Type: ${TEMPLATE_TYPE}"
       echo "Repo: ${REPO_NAME}"
       echo ""
-      echo "## Actions réalisées"
+      echo "## Actions performed"
       for a in "${ACTIONS_DONE[@]}"; do echo "- $a"; done
       echo ""
-      echo "## Actions ignorées"
+      echo "## Actions skipped"
       for s in "${ACTIONS_SKIPPED[@]}"; do echo "- $s"; done
       echo ""
-      echo "## Avertissements"
+      echo "## Warnings"
       for w in "${WARNINGS_LIST[@]}"; do echo "- $w"; done
     } > "$log_file"
-    log_success "Log bootstrap: $log_file"
+    log_success "Bootstrap log: $log_file"
   fi
 }
 
-# ─── Résumé final ─────────────────────────────────────────────────────────────
+# ─── Final summary ──────────────────────────────────────────────────────────────
 show_summary() {
   echo ""
-  log_section "Résumé final"
+  log_section "Final summary"
   echo ""
 
-  log_success "Projet '${REPO_NAME}' créé avec succès!"
+  log_success "Project '${REPO_NAME}' created successfully!"
   echo ""
 
   if [[ ${#ACTIONS_DONE[@]} -gt 0 ]]; then
-    echo -e "${_CLR_SUCCESS}Actions réalisées:${_CLR_RESET}"
+    echo -e "${_CLR_SUCCESS}Actions performed:${_CLR_RESET}"
     for a in "${ACTIONS_DONE[@]}"; do echo "  ✓ $a"; done
   fi
 
   if [[ ${#ACTIONS_SKIPPED[@]} -gt 0 ]]; then
     echo ""
-    echo -e "${_CLR_SKIP}Ignorées:${_CLR_RESET}"
+    echo -e "${_CLR_SKIP}Skipped:${_CLR_RESET}"
     for s in "${ACTIONS_SKIPPED[@]}"; do echo "  - $s"; done
   fi
 
   if [[ ${#WARNINGS_LIST[@]} -gt 0 ]]; then
     echo ""
-    echo -e "${_CLR_WARN}Avertissements:${_CLR_RESET}"
+    echo -e "${_CLR_WARN}Warnings:${_CLR_RESET}"
     for w in "${WARNINGS_LIST[@]}"; do echo "  ⚠ $w"; done
   fi
 
   echo ""
-  log_info "Prochaines étapes:"
+  log_info "Next steps:"
   echo "  1. cd ${OUTPUT_DIR}"
-  echo "  2. Éditer README.md et .github/copilot-instructions.md"
-  echo "  3. Réviser et compléter docs/adr/ADR-0001-initial-decisions.md"
+  echo "  2. Edit README.md and .github/copilot-instructions.md"
+  echo "  3. Review and complete docs/adr/ADR-0001-initial-decisions.md"
   if [[ "$NO_GITHUB" == "false" ]]; then
     local full_name="${ORG:+${ORG}/}${REPO_NAME}"
-    echo "  4. Ouvrir: https://github.com/${full_name}"
+    echo "  4. Open: https://github.com/${full_name}"
   fi
 
   if [[ "$SKIP_AWESOME_COPILOT" == "false" ]]; then
     echo ""
-    log_info "Awesome Copilot installé — voir: ${OUTPUT_DIR}/.github/awesome-copilot-manifest.md"
+    log_info "Awesome Copilot installed — see: ${OUTPUT_DIR}/.github/awesome-copilot-manifest.md"
   fi
   echo ""
 }
 
-# ─── Main ─────────────────────────────────────────────────────────────────────
+# ─── Main ────────────────────────────────────────────────────────────────────────
 main() {
   parse_args "$@"
   validate_inputs
 
-  # Mode non-interactif si tous les params sont fournis
+  # Non-interactive mode if all params are provided
   local interactive=false
   [[ -z "$TEMPLATE_TYPE" ]] || [[ -z "$REPO_NAME" ]] && interactive=true
 
@@ -463,13 +463,13 @@ main() {
     collect_interactive_params
   fi
 
-  # Vérifications finales
+  # Final checks
   if [[ -z "$TEMPLATE_TYPE" ]]; then
-    log_error "--type requis en mode non-interactif"
+    log_error "--type is required in non-interactive mode"
     exit 1
   fi
   if [[ -z "$REPO_NAME" ]]; then
-    log_error "--name requis en mode non-interactif"
+    log_error "--name is required in non-interactive mode"
     exit 1
   fi
   [[ -z "$OUTPUT_DIR" ]]    && OUTPUT_DIR="$(cd "${BOOTSTRAP_DIR}/.." && pwd)/${REPO_NAME}"
@@ -478,7 +478,7 @@ main() {
   check_dest_dir
   show_plan
 
-  # ── Exécution des étapes ──
+  # ── Step execution ──
   step_apply_template
   step_sync_governance
   step_install_awesome_copilot

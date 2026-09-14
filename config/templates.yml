@@ -1,6 +1,6 @@
 # config/templates.yml
-# Mapping type de projet -> fichiers à inclure depuis le template correspondant
-# Utilisé par apply-template.sh
+# Mapping of project type -> files to include from the corresponding template
+# Used by apply-template.sh
 
 defaults: &defaults
   files:
@@ -27,13 +27,13 @@ templates:
   base:
     <<: *defaults
     source_repo: itshaker-template-base
-    description: "Template générique pour tout nouveau projet"
+    description: "Generic template for any new project"
     extra_files: []
 
   infra:
     <<: *defaults
     source_repo: itshaker-template-infra
-    description: "Template pour projets infrastructure, SRE, Ansible, Docker, monitoring"
+    description: "Template for infrastructure, SRE, Ansible, Docker, monitoring projects"
     extra_files:
       - ansible/inventory/.gitkeep
       - ansible/playbooks/.gitkeep
@@ -49,7 +49,7 @@ templates:
   ai:
     <<: *defaults
     source_repo: itshaker-template-ai
-    description: "Template pour projets IA, agents, MCP, prompts, RAG, LLM Wiki"
+    description: "Template for AI, agents, MCP, prompts, RAG, LLM Wiki projects"
     extra_files:
       - agents/.gitkeep
       - prompts/.gitkeep
@@ -62,7 +62,7 @@ templates:
   app:
     <<: *defaults
     source_repo: itshaker-template-app
-    description: "Template pour applications web, API, MVP, portail, SaaS ou outil interne"
+    description: "Template for web applications, APIs, MVPs, portals, SaaS or internal tools"
     extra_files:
       - src/.gitkeep
       - tests/.gitkeep

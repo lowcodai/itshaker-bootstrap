@@ -1,108 +1,108 @@
-# Guide d'utilisation — itshaker-bootstrap
+# Usage guide — itshaker-bootstrap
 
 ## Installation
 
 ```bash
-git clone https://github.com/itshaker/itshaker-bootstrap
+git clone https://github.com/lowcodai/itshaker-bootstrap
 cd itshaker-bootstrap
 ./scripts/check-prerequisites.sh
 ```
 
-## Création d'un nouveau projet
+## Creating a new project
 
-### Mode interactif
+### Interactive mode
 
 ```bash
 ./scripts/new-project.sh
 ```
 
-Le script pose les questions suivantes :
-1. Type de projet (base / infra / ai / app)
-2. Nom du repository (alphanumérique + tirets)
-3. Visibilité GitHub (public / private)
-4. Créer le repo sur GitHub ? (oui / non)
+The script asks the following questions:
+1. Project type (base / infra / ai / app)
+2. Repository name (alphanumeric + hyphens)
+3. GitHub visibility (public / private)
+4. Create the repo on GitHub? (yes / no)
 
-### Mode CLI complet
+### Full CLI mode
 
 ```bash
-# Projet infra privé dans l'org itshaker
+# Private infra project in the lowcodai org
 ./scripts/new-project.sh \
   --type infra \
-  --name mon-infra-aws \
+  --name my-infra-aws \
   --visibility private \
-  --org itshaker \
+  --org lowcodai \
   --verbose
 
-# Projet IA en dry-run d'abord
-./scripts/new-project.sh --type ai --name mon-agent --dry-run --verbose
+# AI project in dry-run first
+./scripts/new-project.sh --type ai --name my-agent --dry-run --verbose
 
-# Créer localement seulement (sans GitHub)
-./scripts/new-project.sh --type app --name mon-app --no-github
+# Create locally only (without GitHub)
+./scripts/new-project.sh --type app --name my-app --no-github
 ```
 
-## Ajouter des fichiers à un projet existant
+## Adding files to an existing project
 
 ```bash
-cd /chemin/vers/mon-projet
+cd /path/to/my-project
 cd ../itshaker-bootstrap
 
 ./scripts/new-project.sh \
   --type base \
-  --name mon-projet \
-  --output-dir /chemin/vers/mon-projet \
+  --name my-project \
+  --output-dir /path/to/my-project \
   --extend-only \
   --no-github
 ```
 
-## Synchroniser la gouvernance
+## Synchronizing governance
 
-Pour mettre à jour les instructions et hooks depuis `itshaker-copilot-governance` :
+To update the instructions and hooks from `itshaker-copilot-governance`:
 
 ```bash
 ./scripts/sync-governance.sh \
   --type base \
-  --dest /chemin/vers/mon-projet
+  --dest /path/to/my-project
 ```
 
-> ⚠️ `--governance-dir` n'existe pas : le chemin vers `itshaker-copilot-governance` est
-> résolu par chemin relatif fixe (`../itshaker-copilot-governance` depuis `itshaker-bootstrap`).
-> Cloner les deux repos côte à côte. Procédure complète pour aligner un repo existant :
-> voir [`docs/governance-alignment-runbook.md`](governance-alignment-runbook.md).
+> ⚠️ `--governance-dir` does not exist: the path to `itshaker-copilot-governance` is
+> resolved via a fixed relative path (`../itshaker-copilot-governance` from `itshaker-bootstrap`).
+> Clone both repos side by side. Full procedure to align an existing repo:
+> see [`docs/governance-alignment-runbook.md`](governance-alignment-runbook.md).
 
-## Installer les éléments Awesome Copilot
+## Installing Awesome Copilot items
 
 ```bash
 ./scripts/install-awesome-copilot.sh \
   --type ai \
-  --dest /chemin/vers/mon-projet
+  --dest /path/to/my-project
 ```
 
-## Variables d'environnement
+## Environment variables
 
-| Variable | Défaut | Description |
+| Variable | Default | Description |
 |----------|--------|-------------|
-| `ITSHAKER_GOVERNANCE_DIR` | `../itshaker-copilot-governance` | Chemin local vers la gouvernance |
-| `ITSHAKER_GITHUB_ORG` | (vide) | Organisation GitHub par défaut |
-| `GITHUB_TOKEN` | (via gh auth) | Token pour les opérations GitHub API |
+| `ITSHAKER_GOVERNANCE_DIR` | `../itshaker-copilot-governance` | Local path to governance |
+| `ITSHAKER_GITHUB_ORG` | (empty) | Default GitHub organization |
+| `GITHUB_TOKEN` | (via gh auth) | Token for GitHub API operations |
 
 ## Troubleshooting
 
-### "bash: bad option" ou erreurs de syntaxe
+### "bash: bad option" or syntax errors
 
-macOS utilise bash 3.x par défaut. Les scripts nécessitent bash ≥ 4 :
+macOS uses bash 3.x by default. The scripts require bash ≥ 4:
 
 ```bash
 brew install bash
-# Puis lancer les scripts avec le bash complet :
+# Then run the scripts with full bash:
 /usr/local/bin/bash scripts/new-project.sh ...
 ```
 
 ### "gh: command not found"
 
-Installer GitHub CLI : https://cli.github.com/
+Install GitHub CLI: https://cli.github.com/
 
-Puis authentifier : `gh auth login`
+Then authenticate: `gh auth login`
 
-### Opération annulée "target directory already exists"
+### Operation cancelled "target directory already exists"
 
-Utiliser `--extend-only` pour ajouter uniquement les fichiers manquants, ou `--force` pour écraser (confirmation requise).
+Use `--extend-only` to only add missing files, or `--force` to overwrite (confirmation required).

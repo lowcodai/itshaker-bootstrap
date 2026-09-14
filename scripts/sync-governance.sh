@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# sync-governance.sh — Synchronise les éléments de gouvernance depuis itshaker-copilot-governance
+# sync-governance.sh — Synchronizes governance items from itshaker-copilot-governance
 # Usage: ./scripts/sync-governance.sh --type <base|infra|ai|app> --dest <dest-dir>
 set -euo pipefail
 
@@ -15,7 +15,7 @@ source "${SCRIPT_DIR}/lib/fs.sh"
 
 TEMPLATE_TYPE=""
 DEST_DIR=""
-LANG_CODE="en"   # défaut: anglais. Override: --lang fr pour continuer une ligne française existante.
+LANG_CODE="en"   # default: English. Override: --lang fr to continue an existing French line.
 
 parse_args() {
   while [[ $# -gt 0 ]]; do
@@ -26,32 +26,32 @@ parse_args() {
       --dry-run)      DRY_RUN=true; shift ;;
       --verbose)      VERBOSE=true; shift ;;
       --extend-only)  EXTEND_ONLY=true; shift ;;
-      *) log_error "Argument inconnu: $1"; exit 1 ;;
+      *) log_error "Unknown argument: $1"; exit 1 ;;
     esac
   done
   if [[ -z "$TEMPLATE_TYPE" ]]; then
-    log_error "--type requis"
+    log_error "--type is required"
     exit 1
   fi
   if [[ -z "$DEST_DIR" ]]; then
-    log_error "--dest requis"
+    log_error "--dest is required"
     exit 1
   fi
   if [[ "$LANG_CODE" != "en" && "$LANG_CODE" != "fr" ]]; then
-    log_error "--lang doit être 'en' ou 'fr' (reçu: ${LANG_CODE})"
+    log_error "--lang must be 'en' or 'fr' (received: ${LANG_CODE})"
     exit 1
   fi
   return 0
 }
 
-# Charge la liste des éléments à synchroniser depuis awesome-copilot-bundles.yml
-# pour le type donné (common + type-specific)
+# Loads the list of items to synchronize from awesome-copilot-bundles.yml
+# for the given type (common + type-specific)
 get_bundle_elements() {
   local type="$1" category="$2"
   local config="${BOOTSTRAP_DIR}/config/awesome-copilot-bundles.yml"
 
   if ! command -v python3 &>/dev/null; then
-    log_warn "python3 non disponible — impossible de parser le YAML de config"
+    log_warn "python3 not available — cannot parse the config YAML"
     return 0
   fi
 
@@ -61,14 +61,14 @@ import sys, json
 try:
     import yaml
 except ImportError:
-    # PyYAML non installé: sortie vide
+    # PyYAML not installed: empty output
     sys.exit(0)
 
 config_file, proj_type, category = sys.argv[1], sys.argv[2], sys.argv[3]
 with open(config_file) as f:
     data = yaml.safe_load(f)
 
-# Combiner common et type-specific
+# Combine common and type-specific
 results = []
 for scope in ['common', proj_type]:
     items = data.get(scope if scope == 'common' else f'bundles.{proj_type}', {})
@@ -76,7 +76,7 @@ for scope in ['common', proj_type]:
         items = data.get('common', {})
     else:
         items = data.get('bundles', {}).get(proj_type, {})
-    
+
     for item in items.get(category, []):
         if isinstance(item, dict):
             if not item.get('optional', False):
@@ -90,27 +90,27 @@ for r in results:
 PYEOF
 }
 
-# Synchronise les instructions depuis governance vers le projet
+# Synchronizes instructions from governance into the project
 sync_instructions() {
-  log_section "Synchronisation des instructions"
+  log_section "Synchronizing instructions"
   local src="${GOVERNANCE_DIR}/instructions"
   local dest="${DEST_DIR}/.github/instructions"
 
   if [[ ! -d "$src" ]]; then
-    log_warn "Répertoire instructions manquant: $src"
+    log_warn "Missing instructions directory: $src"
     return
   fi
 
   run_cmd mkdir -p "$dest"
 
-  # Éléments communs
+  # Common items
   for f in \
     "devops-core-principles.instructions.md" \
     "github-actions-ci-cd-best-practices.instructions.md"; do
     [[ -f "${src}/${f}" ]] && copy_if_not_exists "${src}/${f}" "${dest}/${f}" || true
   done
 
-  # Éléments spécifiques par type
+  # Type-specific items
   case "$TEMPLATE_TYPE" in
     infra)
       for f in "ansible.instructions.md" "containerization-docker-best-practices.instructions.md"; do
@@ -131,25 +131,25 @@ sync_instructions() {
   esac
 }
 
-# Synchronise les hooks depuis governance
+# Synchronizes hooks from governance
 sync_hooks() {
-  log_section "Synchronisation des hooks"
+  log_section "Synchronizing hooks"
   local src="${GOVERNANCE_DIR}/hooks"
   local dest="${DEST_DIR}/.github/hooks"
 
   if [[ ! -d "$src" ]]; then
-    log_warn "Répertoire hooks manquant: $src"
+    log_warn "Missing hooks directory: $src"
     return
   fi
 
   run_cmd mkdir -p "$dest"
 
-  # Hooks communs (tous les types)
+  # Common hooks (all types)
   for hook in "tool-guardian" "secrets-scanner" "governance-audit"; do
     [[ -d "${src}/${hook}" ]] && copy_dir_if_not_exists "${src}/${hook}" "${dest}/${hook}" || true
   done
 
-  # Hooks par type
+  # Type-specific hooks
   case "$TEMPLATE_TYPE" in
     infra|ai|app)
       for hook in "dependency-license-checker" "fix-broken-links"; do
@@ -169,20 +169,20 @@ sync_hooks() {
   fi
 }
 
-# Synchronise les agents depuis governance
+# Synchronizes agents from governance
 sync_agents() {
-  log_section "Synchronisation des agents"
+  log_section "Synchronizing agents"
   local src="${GOVERNANCE_DIR}/agents"
   local dest="${DEST_DIR}/.github/agents"
 
   if [[ ! -d "$src" ]]; then
-    log_warn "Répertoire agents manquant: $src"
+    log_warn "Missing agents directory: $src"
     return
   fi
 
   run_cmd mkdir -p "$dest"
 
-  # Agent universel: ADR generator
+  # Universal agent: ADR generator
   [[ -f "${src}/adr-generator.agent.md" ]] && \
     copy_if_not_exists "${src}/adr-generator.agent.md" "${dest}/adr-generator.agent.md" || true
 
@@ -200,22 +200,22 @@ sync_agents() {
   esac
 }
 
-# Synchronise le contrat de continuité Hermes (ADR-0021) depuis governance.
-# Commun à tous les types de projet — la continuité de contexte n'est pas
-# spécifique à base|infra|ai|app.
+# Synchronizes the Hermes continuity contract (ADR-0021) from governance.
+# Common to all project types — context continuity is not
+# specific to base|infra|ai|app.
 sync_hermes() {
-  log_section "Synchronisation du contrat de continuité Hermes"
+  log_section "Synchronizing the Hermes continuity contract"
   local src="${GOVERNANCE_DIR}/hermes"
 
   if [[ ! -d "$src" ]]; then
-    log_warn "Répertoire hermes/ manquant: $src"
+    log_warn "Missing hermes/ directory: $src"
     return
   fi
 
-  # .hermes.md — substitution du nom de projet (PROJECT_NAME déduit de DEST_DIR sauf
-  # override via --project-name). Le tableau de correspondance modèle → seuils de contexte
-  # (Qwen3.8-27B-NVFP4/Sonnet 5/GPT-5.6 Sol) est intégré tel quel dans la source — à
-  # maintenir dans governance/hermes/.hermes.md si les modèles utilisés changent.
+  # .hermes.md — project name substitution (PROJECT_NAME derived from DEST_DIR unless
+  # overridden via --project-name). The model → context-threshold mapping table
+  # (Qwen3.8-27B-NVFP4/Sonnet 5/GPT-5.6 Sol) is embedded as-is from the source — keep it
+  # in sync with governance/hermes/.hermes.md if the models used change.
   local project_name="${PROJECT_NAME:-$(basename "$DEST_DIR")}"
   if [[ -f "${DEST_DIR}/.hermes.md" ]]; then
     log_skip "${DEST_DIR}/.hermes.md"
@@ -223,8 +223,8 @@ sync_hermes() {
     write_template "${src}/.hermes.md" "${DEST_DIR}/.hermes.md" "PROJECT_NAME=${project_name}"
   fi
 
-  # Squelette docs/operations/ — copié une seule fois, jamais écrasé (copy_if_not_exists) :
-  # un CURRENT.md déjà en usage ne doit jamais être remplacé par le squelette vide.
+  # docs/operations/ skeleton — copied only once, never overwritten (copy_if_not_exists):
+  # a CURRENT.md already in use must never be replaced by the empty skeleton.
   local ops_dest="${DEST_DIR}/docs/operations"
   run_cmd mkdir -p "$ops_dest"
   for f in CURRENT.md HANDOFF.md ACTIVITY.md; do
@@ -233,10 +233,10 @@ sync_hermes() {
   done
 }
 
-# Synchronise la méthodologie PRD/ADR/Plan/Runbook depuis governance.
-# Commune à tous les types de projet — la méthodologie ne dépend pas de base|infra|ai|app.
+# Synchronizes the PRD/ADR/Plan/Runbook methodology from governance.
+# Common to all project types — the methodology does not depend on base|infra|ai|app.
 sync_methodology() {
-  log_section "Synchronisation de la méthodologie PRD/ADR/Plan/Runbook"
+  log_section "Synchronizing the PRD/ADR/Plan/Runbook methodology"
   local src="${GOVERNANCE_DIR}"
 
   run_cmd mkdir -p "${DEST_DIR}/docs/prd" "${DEST_DIR}/docs/adr" "${DEST_DIR}/docs/methodology"
@@ -254,17 +254,17 @@ sync_methodology() {
     copy_if_not_exists "${src}/agents/prd-generator.agent.md" "${DEST_DIR}/.github/agents/prd-generator.agent.md" || true
 }
 
-# Synchronise les templates standards depuis governance
+# Synchronizes standard templates from governance
 sync_templates() {
-  log_section "Synchronisation des templates standards"
+  log_section "Synchronizing standard templates"
   local src="${GOVERNANCE_DIR}/templates"
 
   if [[ ! -d "$src" ]]; then
-    log_warn "Répertoire templates manquant: $src"
+    log_warn "Missing templates directory: $src"
     return
   fi
 
-  # PULL_REQUEST_TEMPLATE (si pas déjà créé par apply-template.sh)
+  # PULL_REQUEST_TEMPLATE (if not already created by apply-template.sh)
   [[ -f "${src}/PULL_REQUEST_TEMPLATE.md" ]] && \
     copy_if_not_exists "${src}/PULL_REQUEST_TEMPLATE.md" "${DEST_DIR}/.github/PULL_REQUEST_TEMPLATE.md" || true
 
@@ -281,11 +281,11 @@ sync_templates() {
 main() {
   parse_args "$@"
 
-  log_section "Synchronisation gouvernance → $DEST_DIR (type: $TEMPLATE_TYPE)"
+  log_section "Governance synchronization → $DEST_DIR (type: $TEMPLATE_TYPE)"
 
   if [[ ! -d "$GOVERNANCE_DIR" ]]; then
-    log_warn "itshaker-copilot-governance non trouvé: $GOVERNANCE_DIR"
-    log_info "Synchronisation ignorée — créer d'abord itshaker-copilot-governance"
+    log_warn "itshaker-copilot-governance not found: $GOVERNANCE_DIR"
+    log_info "Synchronization skipped — create itshaker-copilot-governance first"
     return 0
   fi
 
@@ -296,7 +296,7 @@ main() {
   sync_hermes
   sync_methodology
 
-  log_success "Synchronisation gouvernance terminée"
+  log_success "Governance synchronization complete"
 }
 
 main "$@"

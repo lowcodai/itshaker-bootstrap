@@ -1,154 +1,154 @@
-# Runbook — Aligner un repo existant sur la gouvernance itshaker + contrat Hermes
+# Runbook — Aligning an existing repo on itshaker governance + the Hermes contract
 
-**Périmètre :** tout repo `lowcodai/*` que vous voulez faire correspondre à la structure
-`itshaker-copilot-governance` (instructions/hooks/agents Copilot) et au contrat de
-continuité Hermes (`.hermes.md` + `docs/operations/{CURRENT,HANDOFF,ACTIVITY}.md`).
-**Public :** Arcane (exécution) + Capitaine (revue/validation).
-**Origine :** appliqué réellement le 2026-09-14 sur 6 repos (governance, bootstrap, 4
-templates, dgx-spark-V2, llmwiki) + HermesVPS2 lui-même. Voir `HermesVPS2/BACKLOG.md`
-ticket `#6` et `CHANGELOG.md` (2026-09-14) pour l'historique des commits de référence.
+**Scope:** any `lowcodai/*` repo you want to bring in line with the
+`itshaker-copilot-governance` structure (Copilot instructions/hooks/agents) and the Hermes
+continuity contract (`.hermes.md` + `docs/operations/{CURRENT,HANDOFF,ACTIVITY}.md`).
+**Audience:** Arcane (execution) + Capitaine (review/validation).
+**Origin:** actually applied on 2026-09-14 to 6 repos (governance, bootstrap, 4
+templates, dgx-spark-V2, llmwiki) + HermesVPS2 itself. See `HermesVPS2/BACKLOG.md`
+ticket `#6` and `CHANGELOG.md` (2026-09-14) for the history of reference commits.
 
 ---
 
-## Étape 0 — Prérequis d'agencement des dossiers
+## Step 0 — Folder layout prerequisites
 
-`sync-governance.sh` résout `itshaker-copilot-governance` par **chemin relatif fixe**
-(`${BOOTSTRAP_DIR}/../itshaker-copilot-governance`) — **piège connu :** `docs/usage.md`
-documente un flag `--governance-dir`, mais il n'existe pas dans le script réel (vérifié
-2026-09-14 par grep sur `scripts/sync-governance.sh`). Ne pas s'y fier tant que la doc
-n'est pas corrigée ou le flag ajouté. Cloner donc les deux repos **côte à côte** :
+`sync-governance.sh` resolves `itshaker-copilot-governance` via a **fixed relative path**
+(`${BOOTSTRAP_DIR}/../itshaker-copilot-governance`) — **known pitfall:** `docs/usage.md`
+documents a `--governance-dir` flag, but it does not exist in the actual script (verified
+2026-09-14 via grep on `scripts/sync-governance.sh`). Do not rely on it until the doc
+is fixed or the flag is added. So clone both repos **side by side**:
 
 ```bash
 mkdir -p /opt/data/workspace/itshaker-align && cd /opt/data/workspace/itshaker-align
 gh repo clone lowcodai/itshaker-copilot-governance
 gh repo clone lowcodai/itshaker-bootstrap
-gh repo clone lowcodai/<le-repo-a-aligner>
+gh repo clone lowcodai/<repo-to-align>
 ```
 
 ---
 
-## Étape 1 — Identifier le type de template le plus proche
+## Step 1 — Identify the closest template type
 
-`base | infra | ai | app` — choisir celui qui correspond au repo cible (peu importe s'il
-n'a pas été créé avec `new-project.sh` à l'origine : `--extend-only` n'ajoute que ce qui
-manque, jamais n'écrase).
+`base | infra | ai | app` — choose the one that matches the target repo (it doesn't matter
+whether it was originally created with `new-project.sh`: `--extend-only` only adds what is
+missing, and never overwrites).
 
 ---
 
-## Étape 2 — Dry-run obligatoire avant toute écriture
+## Step 2 — Mandatory dry-run before any write
 
 ```bash
 cd itshaker-bootstrap
 DRY_RUN=true ./scripts/sync-governance.sh \
   --type <base|infra|ai|app> \
-  --dest ../<le-repo-a-aligner> \
+  --dest ../<repo-to-align> \
   --extend-only --verbose
 ```
 
-Lire la sortie : elle doit lister ce qui **serait** créé (`instructions/`, `hooks/`,
+Read the output: it must list what **would** be created (`instructions/`, `hooks/`,
 `agents/`, `.hermes.md`, `docs/operations/{CURRENT,HANDOFF,ACTIVITY}.md`, `templates/`)
-sans rien écrire. Si des fichiers `docs/operations/*.md` du repo cible existent déjà et
-sont datés/en usage, vérifier qu'ils apparaissent en `[SKIP]` et non en `[CREATE]`.
+without writing anything. If the target repo's `docs/operations/*.md` files already exist
+and are dated/in use, verify that they show up as `[SKIP]` and not `[CREATE]`.
 
 ---
 
-## Étape 2bis — Vérifier la méthodologie PRD/ADR dans le dry-run
+## Step 2bis — Verify the PRD/ADR methodology in the dry-run
 
-Dans la sortie de l'Étape 2, confirmer la présence de ces lignes (nouvelles depuis l'ajout de
-`sync_methodology()`) :
+In the Step 2 output, confirm the presence of these lines (new since `sync_methodology()`
+was added):
 
 ```text
-[CREATE] docs/prd/README.md        (ou [SKIP] si le repo cible en a déjà un)
-[CREATE] docs/adr/README.md        (ou [SKIP] — ex: itshaker-dgx-spark-V2 en a déjà un réel)
+[CREATE] docs/prd/README.md        (or [SKIP] if the target repo already has one)
+[CREATE] docs/adr/README.md        (or [SKIP] — e.g. itshaker-dgx-spark-V2 already has a real one)
 [CREATE] docs/methodology/PRD-ADR-PLAN-RUNBOOK-WORKFLOW.md
 [CREATE] .github/agents/prd-generator.agent.md
 ```
 
-Si un repo cible a déjà un `docs/adr/README.md` réel et daté (ex: `itshaker-dgx-spark-V2`), il
-**doit** apparaître en `[SKIP]`, jamais en `[CREATE]` — sinon `--extend-only` a régressé.
+If a target repo already has a real, dated `docs/adr/README.md` (e.g. `itshaker-dgx-spark-V2`),
+it **must** show up as `[SKIP]`, never as `[CREATE]` — otherwise `--extend-only` has regressed.
 
 ---
 
-## Étape 3 — Exécution réelle
+## Step 3 — Actual execution
 
 ```bash
 ./scripts/sync-governance.sh \
   --type <base|infra|ai|app> \
-  --dest ../<le-repo-a-aligner> \
+  --dest ../<repo-to-align> \
   --extend-only
 ```
 
-`--extend-only` est la garantie testée d'idempotence (vérifiée le 2026-09-14 : modification
-manuelle de `CURRENT.md` + re-run → fichier préservé, `[SKIP]` loggé). Ne jamais lancer sans
-`--extend-only` sur un repo qui a déjà du contenu réel dans `docs/operations/`.
+`--extend-only` is the tested guarantee of idempotence (verified on 2026-09-14: manually
+modifying `CURRENT.md` + re-running → file preserved, `[SKIP]` logged). Never run without
+`--extend-only` on a repo that already has real content in `docs/operations/`.
 
 ---
 
-## Étape 4 — Vérifier le résultat avant de committer
+## Step 4 — Verify the result before committing
 
 ```bash
-cd ../<le-repo-a-aligner>
-git status --short          # doit ne montrer QUE des fichiers nouveaux (A/??), aucun M
-                             # sur un fichier docs/operations/*.md déjà daté/en usage
-ls docs/operations/          # CURRENT.md HANDOFF.md ACTIVITY.md doivent être présents
-grep -n "^| \`" .hermes.md   # la table modèle → seuils de contexte doit apparaître
+cd ../<repo-to-align>
+git status --short          # must show ONLY new files (A/??), no M
+                             # on an already-dated/in-use docs/operations/*.md file
+ls docs/operations/          # CURRENT.md HANDOFF.md ACTIVITY.md must be present
+grep -n "^| \`" .hermes.md   # the model → context-threshold table must appear
                              # (Qwen3.8-27B-NVFP4 / Sonnet 5 / GPT-5.6 Sol)
 ```
 
-Si un fichier `docs/operations/*.md` daté existant apparaît en `M` (modifié) plutôt qu'en
-`clean`/`??` : **arrêter, ne pas committer**, investiguer — c'est le signe que
-`--extend-only` n'a pas été respecté ou qu'un bug de régression est réapparu.
+If an existing dated `docs/operations/*.md` file shows up as `M` (modified) rather than
+`clean`/`??`: **stop, do not commit**, investigate — this is a sign that `--extend-only`
+was not respected or that a regression bug has reappeared.
 
 ---
 
-## Étape 5 — Commit + push, puis vérification distante réelle
+## Step 5 — Commit + push, then a real remote verification
 
 ```bash
 git add .hermes.md docs/operations/ instructions/ hooks/ agents/ 2>/dev/null
-git commit -m "feat(hermes): contrat de continuité Hermes + gouvernance Copilot (aligné sur itshaker-copilot-governance)"
+git commit -m "feat(hermes): Hermes continuity contract + Copilot governance (aligned with itshaker-copilot-governance)"
 git push origin main
 ```
 
-**Ne jamais déclarer "commité et pushé" sans vérifier le SHA distant** (leçon du
-2026-09-14, question du Capitaine sur ce point précis) :
+**Never declare "committed and pushed" without checking the remote SHA** (lesson from
+2026-09-14, following a question from Capitaine on this exact point):
 
 ```bash
 local_head=$(git rev-parse --short HEAD)
 git fetch origin main -q
 remote_head=$(git rev-parse --short origin/main)
 [ "$local_head" = "$remote_head" ] && echo "OK: $local_head" || echo "MISMATCH local=$local_head remote=$remote_head"
-git status --short   # doit être vide (working tree clean)
+git status --short   # must be empty (working tree clean)
 ```
 
 ---
 
-## Étape 6 — Documenter dans HermesVPS2
+## Step 6 — Document in HermesVPS2
 
-Ajouter une entrée `CHANGELOG.md` (format `[YYYY-MM-DD] feat — ...`) référençant le SHA du
-commit produit à l'Étape 5, et mettre à jour le ticket `BACKLOG.md` correspondant (ou en
-ouvrir un nouveau si c'est un repo hors du lot initial du ticket `#6`).
+Add a `CHANGELOG.md` entry (format `[YYYY-MM-DD] feat — ...`) referencing the SHA of the
+commit produced in Step 5, and update the corresponding `BACKLOG.md` ticket (or open a new
+one if this repo falls outside the initial batch of ticket `#6`).
 
 ---
 
-## Checklist de clôture
+## Closing checklist
 
-- [ ] Dry-run exécuté et lu avant l'exécution réelle
-- [ ] `--extend-only` utilisé (jamais de run nu sur un repo avec contenu existant)
-- [ ] `git status --short` propre après sync — aucun fichier daté écrasé
-- [ ] Table modèle → seuils de contexte présente dans `.hermes.md`
-- [ ] Commit + push effectués
-- [ ] SHA local == SHA `origin/main` vérifié par `git fetch` (pas supposé)
-- [ ] `HermesVPS2/CHANGELOG.md` et `BACKLOG.md` mis à jour avec le SHA réel
+- [ ] Dry-run executed and read before the actual run
+- [ ] `--extend-only` used (never a bare run on a repo with existing content)
+- [ ] `git status --short` clean after sync — no dated file overwritten
+- [ ] Model → context-threshold table present in `.hermes.md`
+- [ ] Commit + push done
+- [ ] Local SHA == `origin/main` SHA verified via `git fetch` (not assumed)
+- [ ] `HermesVPS2/CHANGELOG.md` and `BACKLOG.md` updated with the actual SHA
 
-## Pièges connus
+## Known pitfalls
 
-- `docs/usage.md` documente `--governance-dir` : **n'existe pas** dans
-  `sync-governance.sh` au 2026-09-14. Chemin relatif fixe uniquement. Signalé, pas corrigé
-  (hors scope de cet alignement) — à corriger un jour, soit en implémentant le flag, soit
-  en retirant la mention de la doc.
-- Ne jamais lancer `sync-governance.sh` sans `--extend-only` sur un repo qui contient déjà
-  des notes actives dans `docs/operations/` — sans ce flag le comportement par défaut n'a
-  pas été validé pour la préservation de contenu existant.
-- La table modèle → seuils de contexte (`.hermes.md`) est à réviser si les fournisseurs
-  changent leurs fenêtres de contexte silencieusement, ou si le Capitaine change ses 3
-  modèles de référence (Qwen3.8-27B-NVFP4 défaut / Sonnet 5 / GPT-5.6 Sol raisonnement lourd).
+- `docs/usage.md` documents `--governance-dir`: it **does not exist** in
+  `sync-governance.sh` as of 2026-09-14. Fixed relative path only. Flagged, not fixed
+  (out of scope for this alignment) — to be fixed someday, either by implementing the flag
+  or by removing the mention from the docs.
+- Never run `sync-governance.sh` without `--extend-only` on a repo that already contains
+  active notes in `docs/operations/` — without this flag, the default behavior has not
+  been validated for preserving existing content.
+- The model → context-threshold table (`.hermes.md`) should be revised if providers
+  silently change their context windows, or if Capitaine changes their 3 reference
+  models (Qwen3.8-27B-NVFP4 default / Sonnet 5 / GPT-5.6 Sol for heavy reasoning).

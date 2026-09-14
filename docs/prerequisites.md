@@ -1,33 +1,33 @@
-# Prérequis — itshaker-bootstrap
+# Prerequisites — itshaker-bootstrap
 
-## Outils requis
+## Required tools
 
-| Outil | Version min | Installation |
+| Tool | Min version | Installation |
 |-------|-------------|--------------|
 | bash | 4.0 | macOS: `brew install bash` |
 | git | 2.30 | `brew install git` |
 | gh | 2.0 | https://cli.github.com/ |
-| curl | 7.64 | inclus macOS/Linux |
+| curl | 7.64 | included on macOS/Linux |
 | jq | 1.6 | `brew install jq` |
 | python3 | 3.8 | `brew install python3` |
 
-## Installation macOS
+## macOS installation
 
 ```bash
-# Homebrew (si absent)
+# Homebrew (if absent)
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-# Outils
+# Tools
 brew install bash git gh curl jq python3
 
-# Authentification GitHub CLI
+# GitHub CLI authentication
 gh auth login
 
-# Vérification
+# Verification
 ./scripts/check-prerequisites.sh
 ```
 
-## Installation Linux (Ubuntu/Debian)
+## Linux installation (Ubuntu/Debian)
 
 ```bash
 sudo apt-get update
@@ -38,19 +38,19 @@ curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo 
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
 sudo apt update && sudo apt install gh
 
-# Authentification
+# Authentication
 gh auth login
 ```
 
-## Note sur bash macOS
+## Note on macOS bash
 
-macOS fournit bash 3.x par défaut (`/bin/bash`). Les scripts itshaker nécessitent bash ≥ 4.
+macOS ships bash 3.x by default (`/bin/bash`). The itshaker scripts require bash ≥ 4.
 
 ```bash
-bash --version  # Si < 4.x
+bash --version  # If < 4.x
 brew install bash
 
-# Les scripts utilisent #!/usr/bin/env bash
-# S'assurer que le bash 4+ est en tête du PATH :
+# The scripts use #!/usr/bin/env bash
+# Make sure bash 4+ is at the front of the PATH:
 echo 'export PATH="/usr/local/bin:$PATH"' >> ~/.zshrc
 ```

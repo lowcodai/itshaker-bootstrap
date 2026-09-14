@@ -1,116 +1,116 @@
 # itshaker-bootstrap
 
-> Scripts d'initialisation automatique de projets depuis les templates itshaker.
+> Automatic project initialization scripts from the itshaker templates.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## Description
 
-`itshaker-bootstrap` fournit un ensemble de scripts shell pour créer rapidement et de manière reproductible de nouveaux projets selon les standards itshaker.
+`itshaker-bootstrap` provides a set of shell scripts to quickly and reproducibly create new projects following itshaker standards.
 
-## Prérequis
+## Prerequisites
 
-- **bash** ≥ 4.0 (macOS : `brew install bash`)
+- **bash** ≥ 4.0 (macOS: `brew install bash`)
 - **git** ≥ 2.30
 - **gh** (GitHub CLI) ≥ 2.0 — [installation](https://cli.github.com/)
 - **curl** ≥ 7.64
 - **jq** ≥ 1.6
-- **python3** (pour la lecture des fichiers YAML de config)
+- **python3** (for reading YAML config files)
 
-Vérifier avec :
+Check with:
 ```bash
 ./scripts/check-prerequisites.sh
 ```
 
-## Utilisation rapide
+## Quick usage
 
 ```bash
-# Création interactive (recommandée)
+# Interactive creation (recommended)
 ./scripts/new-project.sh
 
-# Création directe
-./scripts/new-project.sh --type base --name mon-projet --visibility private
+# Direct creation
+./scripts/new-project.sh --type base --name my-project --visibility private
 
-# Test en dry-run
+# Dry-run test
 ./scripts/new-project.sh --type ai --name test-ai --dry-run --verbose
 
-# Ajouter fichiers manquants à un projet existant
-./scripts/new-project.sh --type infra --name mon-infra --extend-only --no-github
+# Add missing files to an existing project
+./scripts/new-project.sh --type infra --name my-infra --extend-only --no-github
 ```
 
-## Types de projets
+## Project types
 
 | Type | Description | Template source |
 |------|-------------|-----------------|
-| `base` | Tout nouveau projet générique | `itshaker-template-base` |
+| `base` | Any new generic project | `itshaker-template-base` |
 | `infra` | Infrastructure, SRE, Ansible, Docker | `itshaker-template-infra` |
-| `ai` | IA, agents, MCP, prompts, RAG | `itshaker-template-ai` |
-| `app` | Applications web, API, MVP, SaaS | `itshaker-template-app` |
+| `ai` | AI, agents, MCP, prompts, RAG | `itshaker-template-ai` |
+| `app` | Web applications, API, MVP, SaaS | `itshaker-template-app` |
 
-## Options CLI
+## CLI Options
 
 ```
 ./scripts/new-project.sh [OPTIONS]
 
-  -t, --type <base|infra|ai|app>   Type de template
-  -n, --name <repo-name>            Nom du repository
-  -v, --visibility <public|private> Visibilité GitHub (défaut: private)
-  -o, --org <org>                   Organisation GitHub
-  -d, --output-dir <path>           Répertoire destination
-      --no-github                   Local seulement (pas de gh repo create)
-      --dry-run                     Simulation sans modification
-      --verbose                     Log détaillé
-      --extend-only                 Ajoute uniquement les fichiers manquants
-      --force                       Écrase les fichiers (confirmation requise)
-      --no-adr                      Ne pas générer ADR-0001
-      --no-labels                   Ne pas créer les labels GitHub
-      --skip-awesome-copilot        Ne pas installer les éléments awesome-copilot
-  -h, --help                        Aide
+  -t, --type <base|infra|ai|app>   Template type
+  -n, --name <repo-name>            Repository name
+  -v, --visibility <public|private> GitHub visibility (default: private)
+  -o, --org <org>                   GitHub organization
+  -d, --output-dir <path>           Destination directory
+      --no-github                   Local only (no gh repo create)
+      --dry-run                     Simulation without changes
+      --verbose                     Detailed logging
+      --extend-only                 Only add missing files
+      --force                       Overwrite files (confirmation required)
+      --no-adr                      Do not generate ADR-0001
+      --no-labels                   Do not create GitHub labels
+      --skip-awesome-copilot        Do not install awesome-copilot items
+  -h, --help                        Help
 ```
 
 ## Architecture
 
 ```
 scripts/
-├── new-project.sh              # Point d'entrée principal
-├── apply-template.sh           # Instanciation de la structure template
-├── sync-governance.sh          # Synchronisation depuis la gouvernance
-├── install-awesome-copilot.sh  # Installation skills/agents/hooks/plugins
-├── init-github-repo.sh         # Création du repo GitHub
-├── init-labels.sh              # Labels GitHub
-├── init-milestones.sh          # Milestones v0.1-alpha et v1.0
-├── init-adr.sh                 # Génération de l'ADR-0001
-├── check-prerequisites.sh      # Vérification des prérequis
+├── new-project.sh              # Main entry point
+├── apply-template.sh           # Instantiation of the template structure
+├── sync-governance.sh          # Synchronization from governance
+├── install-awesome-copilot.sh  # Installation of skills/agents/hooks/plugins
+├── init-github-repo.sh         # Creation of the GitHub repo
+├── init-labels.sh              # GitHub labels
+├── init-milestones.sh          # v0.1-alpha and v1.0 milestones
+├── init-adr.sh                 # Generation of ADR-0001
+├── check-prerequisites.sh      # Prerequisite checks
 └── lib/
-    ├── log.sh                  # Logging coloré + run_cmd (dry-run)
-    ├── fs.sh                   # Opérations fichiers idempotentes
-    ├── confirm.sh              # Confirmations interactives
-    └── gh.sh                   # Wrappers GitHub CLI
+    ├── log.sh                  # Colored logging + run_cmd (dry-run)
+    ├── fs.sh                   # Idempotent file operations
+    ├── confirm.sh               # Interactive confirmations
+    └── gh.sh                   # GitHub CLI wrappers
 config/
-├── templates.yml               # Mapping type → fichiers à inclure
-├── awesome-copilot-bundles.yml # Éléments awesome-copilot par type
-└── labels.yml                  # Labels GitHub standards
+├── templates.yml               # Mapping type → files to include
+├── awesome-copilot-bundles.yml # Awesome-copilot items per type
+└── labels.yml                  # Standard GitHub labels
 ```
 
 ## Tests
 
 ```bash
-# Tests complets
+# Full test suite
 bash tests/test-dry-run.sh
 bash tests/test-idempotency.sh
 bash tests/test-extend-only.sh
 ```
 
-## Sécurité
+## Security
 
-- Mode dry-run : aucune modification du système de fichiers
-- Pas de secret dans les fichiers générés
-- Confirmation explicite avant tout `--force`
-- Scripts idempotents : relancer = safe
-- `--extend-only` : ajoute uniquement les fichiers manquants
+- Dry-run mode: no filesystem changes
+- No secrets in generated files
+- Explicit confirmation before any `--force`
+- Idempotent scripts: safe to re-run
+- `--extend-only`: only adds missing files
 
-## Références
+## References
 
-- [itshaker-copilot-governance](https://github.com/itshaker/itshaker-copilot-governance)
+- [itshaker-copilot-governance](https://github.com/lowcodai/itshaker-copilot-governance)
 - [github/awesome-copilot](https://github.com/github/awesome-copilot)
 - [GitHub CLI](https://cli.github.com/)

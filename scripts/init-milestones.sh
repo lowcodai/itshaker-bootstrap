@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# init-milestones.sh — Crée les milestones GitHub standards
+# init-milestones.sh — Creates standard GitHub milestones
 # Usage: ./scripts/init-milestones.sh --repo <org/name>
 set -euo pipefail
 
@@ -18,11 +18,11 @@ parse_args() {
       -r|--repo)  REPO="$2"; shift 2 ;;
       --dry-run)  DRY_RUN=true; shift ;;
       --verbose)  VERBOSE=true; shift ;;
-      *) log_error "Argument inconnu: $1"; exit 1 ;;
+      *) log_error "Unknown argument: $1"; exit 1 ;;
     esac
   done
   if [[ -z "$REPO" ]]; then
-    log_error "--repo requis (format: org/nom)"
+    log_error "--repo is required (format: org/name)"
     exit 1
   fi
   return 0
@@ -30,15 +30,15 @@ parse_args() {
 
 main() {
   parse_args "$@"
-  log_section "Création des milestones pour: $REPO"
+  log_section "Creating milestones for: $REPO"
 
   gh_check_auth || return 1
 
-  # Milestones standards
+  # Standard milestones
   gh_create_milestone "$REPO" "v0.1-alpha"
   gh_create_milestone "$REPO" "v1.0"
 
-  log_success "Milestones créés pour: $REPO"
+  log_success "Milestones created for: $REPO"
 }
 
 main "$@"
