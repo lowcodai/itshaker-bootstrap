@@ -207,9 +207,9 @@ sync_hermes() {
   fi
 
   # .hermes.md — substitution du nom de projet (PROJECT_NAME déduit de DEST_DIR sauf
-  # override via --project-name). CONTEXT_WINDOW_TOKENS reste un placeholder : à vérifier
-  # et renseigner manuellement dans le projet cible (dépend du modèle qui sert la session,
-  # pas de ce script).
+  # override via --project-name). Le tableau de correspondance modèle → seuils de contexte
+  # (Qwen3.8-27B-NVFP4/Sonnet 5/GPT-5.6 Sol) est intégré tel quel dans la source — à
+  # maintenir dans governance/hermes/.hermes.md si les modèles utilisés changent.
   local project_name="${PROJECT_NAME:-$(basename "$DEST_DIR")}"
   if [[ -f "${DEST_DIR}/.hermes.md" ]]; then
     log_skip "${DEST_DIR}/.hermes.md"
