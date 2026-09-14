@@ -694,7 +694,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: ansible/ansible-lint@main
+      - uses: ansible/ansible-lint@v26
         with:
           path: ansible/
 EOF
