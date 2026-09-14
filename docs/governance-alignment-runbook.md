@@ -52,6 +52,23 @@ sont datés/en usage, vérifier qu'ils apparaissent en `[SKIP]` et non en `[CREA
 
 ---
 
+## Étape 2bis — Vérifier la méthodologie PRD/ADR dans le dry-run
+
+Dans la sortie de l'Étape 2, confirmer la présence de ces lignes (nouvelles depuis l'ajout de
+`sync_methodology()`) :
+
+```text
+[CREATE] docs/prd/README.md        (ou [SKIP] si le repo cible en a déjà un)
+[CREATE] docs/adr/README.md        (ou [SKIP] — ex: itshaker-dgx-spark-V2 en a déjà un réel)
+[CREATE] docs/methodology/PRD-ADR-PLAN-RUNBOOK-WORKFLOW.md
+[CREATE] .github/agents/prd-generator.agent.md
+```
+
+Si un repo cible a déjà un `docs/adr/README.md` réel et daté (ex: `itshaker-dgx-spark-V2`), il
+**doit** apparaître en `[SKIP]`, jamais en `[CREATE]` — sinon `--extend-only` a régressé.
+
+---
+
 ## Étape 3 — Exécution réelle
 
 ```bash

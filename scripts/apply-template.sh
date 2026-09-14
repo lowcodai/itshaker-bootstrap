@@ -20,6 +20,7 @@ TEMPLATE_TYPE=""
 REPO_NAME=""
 DEST_DIR=""
 DATE_TODAY="$(date +%Y-%m-%d)"
+LANG_CODE="en"   # défaut: anglais. Override: --lang fr pour continuer une ligne française existante.
 
 # ─── Parsing des arguments ────────────────────────────────────────────────────
 parse_args() {
@@ -28,6 +29,7 @@ parse_args() {
       -t|--type)      TEMPLATE_TYPE="$2"; shift 2 ;;
       -n|--name)      REPO_NAME="$2"; shift 2 ;;
       -d|--dest)      DEST_DIR="$2"; shift 2 ;;
+      -l|--lang)      LANG_CODE="$2"; shift 2 ;;
       --dry-run)      DRY_RUN=true; shift ;;
       --verbose)      VERBOSE=true; shift ;;
       --extend-only)  EXTEND_ONLY=true; shift ;;
@@ -46,6 +48,10 @@ parse_args() {
   fi
   if [[ -z "$DEST_DIR" ]]; then
     log_error "--dest requis"
+    exit 1
+  fi
+  if [[ "$LANG_CODE" != "en" && "$LANG_CODE" != "fr" ]]; then
+    log_error "--lang doit être 'en' ou 'fr' (reçu: ${LANG_CODE})"
     exit 1
   fi
   return 0
@@ -209,7 +215,22 @@ EOF
 
   # ROADMAP.md
   if [[ ! -f "${DEST_DIR}/ROADMAP.md" ]]; then
-    cat > "${DEST_DIR}/ROADMAP.md" << EOF
+    if [[ "$LANG_CODE" == "en" ]]; then
+      cat > "${DEST_DIR}/ROADMAP.md" << EOF
+# Roadmap — ${REPO_NAME}
+
+## v0.1-alpha — Initialization
+- [ ] Initial project setup
+- [ ] Initial documentation
+- [ ] Basic CI/CD
+
+## v1.0 — Production Ready
+- [ ] Core features
+- [ ] Full test coverage
+- [ ] Complete documentation
+EOF
+    else
+      cat > "${DEST_DIR}/ROADMAP.md" << EOF
 # Roadmap — ${REPO_NAME}
 
 ## v0.1-alpha — Initialisation
@@ -222,6 +243,7 @@ EOF
 - [ ] Tests complets
 - [ ] Documentation complète
 EOF
+    fi
     [[ "${DRY_RUN:-false}" != "true" ]] && sed -i.bak "s/{{REPO_NAME}}/${REPO_NAME}/g" "${DEST_DIR}/ROADMAP.md" && rm -f "${DEST_DIR}/ROADMAP.md.bak"
     log_success "Créé: ROADMAP.md"
   else
@@ -230,8 +252,37 @@ EOF
 
   # AGENTS.md
   if [[ ! -f "${DEST_DIR}/AGENTS.md" ]]; then
-    cat > "${DEST_DIR}/AGENTS.md" << 'EOF'
+    if [[ "$LANG_CODE" == "en" ]]; then
+      LANG_SECTION=$'## Language\n\nAll repository documentation is written in English (ADRs, PRDs, runbooks, README, code comments). No retroactive translation required for pre-existing content.'
+    else
+      LANG_SECTION=$'## Language\n\nDocumentation de ce dépôt en français (héritage). Pas de traduction rétroactive exigée.'
+    fi
+    if [[ "$LANG_CODE" == "en" ]]; then
+      cat > "${DEST_DIR}/AGENTS.md" << EOF
+# Copilot Agents
+
+${LANG_SECTION}
+
+This file lists the GitHub Copilot agents available in this project.
+Source: [github/awesome-copilot](https://github.com/github/awesome-copilot)
+
+## Installed agents
+
+| Agent | Description | File |
+|-------|-------------|------|
+| ADR Generator | Generates Architecture Decision Records | \`.github/agents/adr-generator.agent.md\` |
+| PRD Generator | Generates Product Requirement Documents | \`.github/agents/prd-generator.agent.md\` |
+
+## Usage
+
+In GitHub Copilot Chat, reference an agent with \`@<agent-name>\`.
+Custom agents are automatically available via their \`.agent.md\` files.
+EOF
+    else
+      cat > "${DEST_DIR}/AGENTS.md" << EOF
 # Agents Copilot
+
+${LANG_SECTION}
 
 Ce fichier liste les agents GitHub Copilot disponibles dans ce projet.
 Source: [github/awesome-copilot](https://github.com/github/awesome-copilot)
@@ -240,13 +291,15 @@ Source: [github/awesome-copilot](https://github.com/github/awesome-copilot)
 
 | Agent | Description | Fichier |
 |-------|-------------|---------|
-| ADR Generator | Génère des Architecture Decision Records | `.github/agents/adr-generator.agent.md` |
+| ADR Generator | Génère des Architecture Decision Records | \`.github/agents/adr-generator.agent.md\` |
+| PRD Generator | Génère des Product Requirement Documents | \`.github/agents/prd-generator.agent.md\` |
 
 ## Utilisation
 
-Dans GitHub Copilot Chat, référencer un agent avec `@<agent-name>`.
-Pour les agents custom, ils sont disponibles automatiquement via les fichiers `.agent.md`.
+Dans GitHub Copilot Chat, référencer un agent avec \`@<agent-name>\`.
+Pour les agents custom, ils sont disponibles automatiquement via les fichiers \`.agent.md\`.
 EOF
+    fi
     log_success "Créé: AGENTS.md"
   else
     log_skip "AGENTS.md"
@@ -254,7 +307,41 @@ EOF
 
   # CONTRIBUTING.md
   if [[ ! -f "${DEST_DIR}/CONTRIBUTING.md" ]]; then
-    cat > "${DEST_DIR}/CONTRIBUTING.md" << 'EOF'
+    if [[ "$LANG_CODE" == "en" ]]; then
+      cat > "${DEST_DIR}/CONTRIBUTING.md" << 'EOF'
+# Contributing guide
+
+## Prerequisites
+
+- Git
+- GitHub CLI (`gh`)
+- Repo access
+
+## Workflow
+
+1. Create a branch from `main`: `git checkout -b feat/my-feature`
+2. Make your changes
+3. Commit using conventional commits: `feat: description`
+4. Open a PR against `main`
+5. Wait for review
+
+## Conventions
+
+See the standards in [itshaker-copilot-governance](https://github.com/itshaker/itshaker-copilot-governance).
+
+## Conventional commits
+
+```
+feat: new feature
+fix: bug fix
+docs: documentation
+chore: maintenance
+refactor: refactoring
+test: tests
+```
+EOF
+    else
+      cat > "${DEST_DIR}/CONTRIBUTING.md" << 'EOF'
 # Guide de contribution
 
 ## Prérequis
@@ -286,6 +373,7 @@ refactor: refactoring
 test: tests
 ```
 EOF
+    fi
     log_success "Créé: CONTRIBUTING.md"
   else
     log_skip "CONTRIBUTING.md"
@@ -395,7 +483,26 @@ generate_github_files() {
 
   # copilot-instructions.md
   if [[ ! -f "${github_dir}/copilot-instructions.md" ]]; then
-    cat > "${github_dir}/copilot-instructions.md" << EOF
+    if [[ "$LANG_CODE" == "en" ]]; then
+      cat > "${github_dir}/copilot-instructions.md" << EOF
+# Copilot Instructions — ${REPO_NAME}
+
+## Project type
+${TEMPLATE_TYPE}
+
+## Context
+<!-- TODO: Describe the project context for Copilot agents -->
+
+## Standards
+- Follow the conventions defined in [itshaker-copilot-governance](https://github.com/itshaker/itshaker-copilot-governance)
+- Use conventional commits
+- Document architecture decisions in docs/adr/
+
+## Specific instructions
+<!-- TODO: Add project-specific instructions -->
+EOF
+    else
+      cat > "${github_dir}/copilot-instructions.md" << EOF
 # Instructions Copilot — ${REPO_NAME}
 
 ## Type de projet
@@ -412,6 +519,7 @@ ${TEMPLATE_TYPE}
 ## Instructions spécifiques
 <!-- TODO: Ajouter les instructions spécifiques à ce projet -->
 EOF
+    fi
     [[ "${DRY_RUN:-false}" != "true" ]] && sed -i.bak "s/{{REPO_NAME}}/${REPO_NAME}/g" "${github_dir}/copilot-instructions.md" && rm -f "${github_dir}/copilot-instructions.md.bak"
     log_success "Créé: .github/copilot-instructions.md"
   else

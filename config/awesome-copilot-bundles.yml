@@ -44,6 +44,9 @@ common:
     - name: adr-generator
       file: adr-generator.agent.md
       description: "Génère des ADR (Architecture Decision Records)"
+    - name: prd-generator
+      file: prd-generator.agent.md
+      description: "Génère des PRD (Product Requirement Documents), en amont de tout ADR"
 
   plugins:
     - name: arch

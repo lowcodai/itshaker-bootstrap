@@ -46,6 +46,7 @@ NO_GITHUB=false
 NO_ADR=false
 NO_LABELS=false
 SKIP_AWESOME_COPILOT=false
+LANG_CODE="en"   # défaut: anglais. Override: --lang fr pour continuer une ligne française existante.
 
 # Compteurs pour le résumé final
 ACTIONS_DONE=()
@@ -106,6 +107,7 @@ parse_args() {
       -v|--visibility)      VISIBILITY="$2"; shift 2 ;;
       -o|--org)             ORG="$2"; shift 2 ;;
       -d|--output-dir)      OUTPUT_DIR="$2"; shift 2 ;;
+      -l|--lang)            LANG_CODE="$2"; shift 2 ;;
       --no-github)          NO_GITHUB=true; shift ;;
       --dry-run)            DRY_RUN=true; shift ;;
       --verbose)            VERBOSE=true; shift ;;
@@ -269,6 +271,7 @@ step_apply_template() {
     "--type" "$TEMPLATE_TYPE"
     "--name" "$REPO_NAME"
     "--dest" "$OUTPUT_DIR"
+    "--lang" "$LANG_CODE"
   )
   [[ "$DRY_RUN" == "true" ]]     && args+=("--dry-run")
   [[ "$VERBOSE" == "true" ]]     && args+=("--verbose")
@@ -284,6 +287,7 @@ step_sync_governance() {
   local args=(
     "--type" "$TEMPLATE_TYPE"
     "--dest" "$OUTPUT_DIR"
+    "--lang" "$LANG_CODE"
   )
   [[ "$DRY_RUN" == "true" ]]     && args+=("--dry-run")
   [[ "$VERBOSE" == "true" ]]     && args+=("--verbose")

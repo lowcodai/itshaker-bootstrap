@@ -15,12 +15,14 @@ source "${SCRIPT_DIR}/lib/fs.sh"
 
 TEMPLATE_TYPE=""
 DEST_DIR=""
+LANG_CODE="en"   # défaut: anglais. Override: --lang fr pour continuer une ligne française existante.
 
 parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -t|--type)      TEMPLATE_TYPE="$2"; shift 2 ;;
       -d|--dest)      DEST_DIR="$2"; shift 2 ;;
+      -l|--lang)      LANG_CODE="$2"; shift 2 ;;
       --dry-run)      DRY_RUN=true; shift ;;
       --verbose)      VERBOSE=true; shift ;;
       --extend-only)  EXTEND_ONLY=true; shift ;;
@@ -33,6 +35,10 @@ parse_args() {
   fi
   if [[ -z "$DEST_DIR" ]]; then
     log_error "--dest requis"
+    exit 1
+  fi
+  if [[ "$LANG_CODE" != "en" && "$LANG_CODE" != "fr" ]]; then
+    log_error "--lang doit être 'en' ou 'fr' (reçu: ${LANG_CODE})"
     exit 1
   fi
   return 0
@@ -227,6 +233,27 @@ sync_hermes() {
   done
 }
 
+# Synchronise la méthodologie PRD/ADR/Plan/Runbook depuis governance.
+# Commune à tous les types de projet — la méthodologie ne dépend pas de base|infra|ai|app.
+sync_methodology() {
+  log_section "Synchronisation de la méthodologie PRD/ADR/Plan/Runbook"
+  local src="${GOVERNANCE_DIR}"
+
+  run_cmd mkdir -p "${DEST_DIR}/docs/prd" "${DEST_DIR}/docs/adr" "${DEST_DIR}/docs/methodology"
+
+  [[ -f "${src}/hermes/docs-prd-templates/README.md" ]] && \
+    copy_if_not_exists "${src}/hermes/docs-prd-templates/README.md" "${DEST_DIR}/docs/prd/README.md" || true
+  [[ -f "${src}/hermes/docs-adr-templates/README.md" ]] && \
+    copy_if_not_exists "${src}/hermes/docs-adr-templates/README.md" "${DEST_DIR}/docs/adr/README.md" || true
+  [[ -f "${src}/docs/methodology/PRD-ADR-PLAN-RUNBOOK-WORKFLOW.md" ]] && \
+    copy_if_not_exists "${src}/docs/methodology/PRD-ADR-PLAN-RUNBOOK-WORKFLOW.md" \
+      "${DEST_DIR}/docs/methodology/PRD-ADR-PLAN-RUNBOOK-WORKFLOW.md" || true
+
+  run_cmd mkdir -p "${DEST_DIR}/.github/agents"
+  [[ -f "${src}/agents/prd-generator.agent.md" ]] && \
+    copy_if_not_exists "${src}/agents/prd-generator.agent.md" "${DEST_DIR}/.github/agents/prd-generator.agent.md" || true
+}
+
 # Synchronise les templates standards depuis governance
 sync_templates() {
   log_section "Synchronisation des templates standards"
@@ -267,6 +294,7 @@ main() {
   sync_agents
   sync_templates
   sync_hermes
+  sync_methodology
 
   log_success "Synchronisation gouvernance terminée"
 }
