@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# lib/log.sh — Fonctions de logging coloré
+# lib/log.sh — Colored logging functions
 # Source: source "$(dirname "$0")/lib/log.sh"
 
-# Couleurs (désactivées si non-terminal)
+# Colors (disabled if not a terminal)
 if [[ -t 1 ]]; then
   _CLR_RESET="\033[0m"
   _CLR_INFO="\033[0;34m"    # Bleu

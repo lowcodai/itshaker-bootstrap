@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# install-awesome-copilot.sh — Installe les éléments awesome-copilot pour un type de projet
+# install-awesome-copilot.sh — Installs awesome-copilot items for a project type
 # Usage: ./scripts/install-awesome-copilot.sh --type <base|infra|ai|app> --dest <dest-dir>
 set -euo pipefail
 
@@ -13,7 +13,7 @@ source "${SCRIPT_DIR}/lib/gh.sh"
 : "${VERBOSE:=false}"
 : "${EXTEND_ONLY:=false}"
 
-# SHA de référence pour reproductibilité (mis à jour manuellement)
+# Reference SHA for reproducibility (updated manually)
 AWESOME_COPILOT_REF="dae77f24132c1d686c30fd5b29aee0d63668d1d2"
 TEMPLATE_TYPE=""
 DEST_DIR=""
@@ -35,24 +35,24 @@ parse_args() {
       --dry-run)          DRY_RUN=true; shift ;;
       --verbose)          VERBOSE=true; shift ;;
       --extend-only)      EXTEND_ONLY=true; shift ;;
-      *) log_error "Argument inconnu: $1"; exit 1 ;;
+      *) log_error "Unknown argument: $1"; exit 1 ;;
     esac
   done
   if [[ -z "$TEMPLATE_TYPE" ]]; then
-    log_error "--type requis"
+    log_error "--type is required"
     exit 1
   fi
   if [[ -z "$DEST_DIR" ]]; then
-    log_error "--dest requis"
+    log_error "--dest is required"
     exit 1
   fi
   return 0
 }
 
-# Retourne les skills à installer pour le type donné
+# Returns the skills to install for the given type
 get_skills_for_type() {
   local type="$1"
-  # Skills communs à tous les types
+  # Skills common to all types
   local skills=(
     "acquire-codebase-knowledge"
     "breakdown-plan"
@@ -87,7 +87,7 @@ get_skills_for_type() {
   printf '%s\n' "${skills[@]}"
 }
 
-# Retourne les agents à installer pour le type donné
+# Returns the agents to install for the given type
 get_agents_for_type() {
   local type="$1"
   local agents=("adr-generator.agent.md")
@@ -111,7 +111,7 @@ get_agents_for_type() {
   printf '%s\n' "${agents[@]}"
 }
 
-# Retourne les plugins à installer pour le type donné
+# Returns the plugins to install for the given type
 get_plugins_for_type() {
   local type="$1"
   local plugins=("arch")
@@ -128,9 +128,9 @@ get_plugins_for_type() {
   printf '%s\n' "${plugins[@]}"
 }
 
-# Installe les skills
+# Installs the skills
 install_skills() {
-  log_section "Installation des skills awesome-copilot"
+  log_section "Installing awesome-copilot skills"
   local skills_dest="${DEST_DIR}/.github/skills"
   run_cmd mkdir -p "$skills_dest"
 
@@ -142,9 +142,9 @@ install_skills() {
   done < <(get_skills_for_type "$TEMPLATE_TYPE")
 }
 
-# Installe les agents
+# Installs the agents
 install_agents() {
-  log_section "Installation des agents awesome-copilot"
+  log_section "Installing awesome-copilot agents"
   local agents_dest="${DEST_DIR}/.github/agents"
   run_cmd mkdir -p "$agents_dest"
 
@@ -157,19 +157,19 @@ install_agents() {
   done < <(get_agents_for_type "$TEMPLATE_TYPE")
 }
 
-# Installe les instructions
+# Installs the instructions
 install_instructions() {
-  log_section "Installation des instructions awesome-copilot"
+  log_section "Installing awesome-copilot instructions"
   local instr_dest="${DEST_DIR}/.github/instructions"
   run_cmd mkdir -p "$instr_dest"
 
-  # Instructions communes
+  # Common instructions
   local common_instructions=(
     "devops-core-principles.instructions.md"
     "github-actions-ci-cd-best-practices.instructions.md"
   )
 
-  # Instructions spécifiques par type
+  # Type-specific instructions
   local type_instructions=()
   case "$TEMPLATE_TYPE" in
     infra)
@@ -194,15 +194,15 @@ install_instructions() {
   done
 }
 
-# Installe les plugins
+# Installs the plugins
 install_plugins() {
   if [[ "$SKIP_PLUGINS" == "true" ]]; then
-    log_skip "Plugins (--skip-plugins activé)"
+    log_skip "Plugins (--skip-plugins enabled)"
     return
   fi
 
-  log_section "Installation des plugins awesome-copilot"
-  log_info "Note: plugins installés dans l'environnement Copilot global (pas dans le repo)"
+  log_section "Installing awesome-copilot plugins"
+  log_info "Note: plugins are installed in the global Copilot environment (not in the repo)"
 
   while IFS= read -r plugin; do
     [[ -z "$plugin" ]] && continue
@@ -212,64 +212,64 @@ install_plugins() {
   done < <(get_plugins_for_type "$TEMPLATE_TYPE")
 }
 
-# Génère un résumé de l'installation dans le projet
+# Generates an installation summary in the project
 generate_install_summary() {
   local summary_file="${DEST_DIR}/.github/awesome-copilot-manifest.md"
   if [[ "${DRY_RUN:-false}" == "true" ]]; then
-    log_dry "Écrire: $summary_file"
+    log_dry "Write: $summary_file"
     return
   fi
 
   cat > "$summary_file" << EOF
-# Manifest Awesome Copilot — ${TEMPLATE_TYPE}
+# Awesome Copilot Manifest — ${TEMPLATE_TYPE}
 
-> Généré le: $(date +%Y-%m-%d)
-> Référence awesome-copilot: \`${AWESOME_COPILOT_REF}\`
+> Generated on: $(date +%Y-%m-%d)
+> Awesome-copilot reference: \`${AWESOME_COPILOT_REF}\`
 > Source: https://github.com/github/awesome-copilot
 
-## Skills installés
+## Installed skills
 
 $(for s in "${INSTALLED_SKILLS[@]}"; do echo "- \`$s\` — \`.github/skills/$s/\`"; done)
 
-## Agents installés
+## Installed agents
 
 $(for a in "${INSTALLED_AGENTS[@]}"; do echo "- \`$a\` — \`.github/agents/$a.agent.md\`"; done)
 
-## Plugins installés (environnement global)
+## Installed plugins (global environment)
 
 $(for p in "${INSTALLED_PLUGINS[@]}"; do echo "- \`$p\`"; done)
 
-## Instructions installées
+## Installed instructions
 
 \`\`.github/instructions/\`\`
 
-## Mise à jour
+## Updating
 
-Pour mettre à jour les éléments awesome-copilot:
+To update the awesome-copilot items:
 \`\`\`bash
-# Depuis itshaker-bootstrap:
+# From itshaker-bootstrap:
 ./scripts/install-awesome-copilot.sh --type ${TEMPLATE_TYPE} --dest . --ref <new-sha>
 \`\`\`
 
-## Installation manuelle des plugins
+## Manual plugin installation
 
-Si \`copilot plugin install\` n'est pas disponible:
-1. Ouvrir VS Code
-2. Dans le panneau Extensions: taper \`@agentPlugins\`
-3. Installer: $(IFS=', '; echo "${INSTALLED_PLUGINS[*]:-aucun}")
+If \`copilot plugin install\` is not available:
+1. Open VS Code
+2. In the Extensions panel: type \`@agentPlugins\`
+3. Install: $(IFS=', '; echo "${INSTALLED_PLUGINS[*]:-none}")
 EOF
-  log_success "Manifest créé: $summary_file"
+  log_success "Manifest created: $summary_file"
 }
 
 # ─── Main ────────────────────────────────────────────────────────────────────
 main() {
   parse_args "$@"
 
-  log_section "Installation awesome-copilot (type: $TEMPLATE_TYPE)"
-  log_info "Référence: $AWESOME_COPILOT_REF"
+  log_section "Installing awesome-copilot (type: $TEMPLATE_TYPE)"
+  log_info "Reference: $AWESOME_COPILOT_REF"
 
   if ! command -v gh &>/dev/null && [[ "${DRY_RUN:-false}" != "true" ]]; then
-    log_warn "gh CLI non disponible — téléchargements via curl (fallback)"
+    log_warn "gh CLI not available — downloads via curl (fallback)"
   fi
 
   install_skills
@@ -278,11 +278,11 @@ main() {
   install_plugins
   generate_install_summary
 
-  log_section "Résumé d'installation"
-  log_success "Skills: ${#INSTALLED_SKILLS[@]} installés"
-  log_success "Agents: ${#INSTALLED_AGENTS[@]} installés"
-  log_success "Plugins: ${#INSTALLED_PLUGINS[@]} traités"
-  log_info "Voir: ${DEST_DIR}/.github/awesome-copilot-manifest.md"
+  log_section "Installation summary"
+  log_success "Skills: ${#INSTALLED_SKILLS[@]} installed"
+  log_success "Agents: ${#INSTALLED_AGENTS[@]} installed"
+  log_success "Plugins: ${#INSTALLED_PLUGINS[@]} processed"
+  log_info "See: ${DEST_DIR}/.github/awesome-copilot-manifest.md"
 }
 
 main "$@"

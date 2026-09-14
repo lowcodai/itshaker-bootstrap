@@ -1,55 +1,55 @@
 # Design — itshaker-bootstrap
 
-## Principes de design
+## Design principles
 
-### 1. Idempotence par défaut
-Chaque opération de fichier vérifie si le fichier existe avant d'écrire. La fonction `copy_if_not_exists()` est le primitif de base de tous les scripts.
+### 1. Idempotence by default
+Every file operation checks whether the file exists before writing. The `copy_if_not_exists()` function is the base primitive of all scripts.
 
-### 2. Dry-run exhaustif
-Toute action destructrice est enveloppée dans `run_cmd()`. En mode `--dry-run`, cette fonction affiche la commande sans l'exécuter.
+### 2. Exhaustive dry-run
+Every destructive action is wrapped in `run_cmd()`. In `--dry-run` mode, this function shows the command without executing it.
 
-### 3. Séparation des responsabilités
-Chaque script a une responsabilité unique :
-- `apply-template.sh` : structure de fichiers
-- `sync-governance.sh` : injection gouvernance
-- `install-awesome-copilot.sh` : éléments external
-- `init-*.sh` : initialisation GitHub spécifique
+### 3. Separation of concerns
+Each script has a single responsibility:
+- `apply-template.sh`: file structure
+- `sync-governance.sh`: governance injection
+- `install-awesome-copilot.sh`: external items
+- `init-*.sh`: GitHub-specific initialization
 
-### 4. Configuration externe
-Les choix d'éléments à inclure sont dans des fichiers YAML :
-- `config/templates.yml` : quels fichiers inclure
-- `config/awesome-copilot-bundles.yml` : quels éléments awesome-copilot
+### 4. External configuration
+The choices of which items to include live in YAML files:
+- `config/templates.yml`: which files to include
+- `config/awesome-copilot-bundles.yml`: which awesome-copilot items
 
-### 5. Compatibilité macOS/Linux
-- Bash 4+ requis (pas de bash 3 macOS)
-- Pas d'extensions GNU-specific sans fallback
-- Pas de `readarray`, `declare -A` sans vérification de version
+### 5. macOS/Linux compatibility
+- Bash 4+ required (not macOS's bash 3)
+- No GNU-specific extensions without a fallback
+- No `readarray`, `declare -A` without a version check
 
-## Architecture des scripts
+## Script architecture
 
 ```
 new-project.sh
     │
-    ├── check-prerequisites.sh     (vérification outils)
-    ├── apply-template.sh          (structure fichiers)
+    ├── check-prerequisites.sh     (tool checks)
+    ├── apply-template.sh          (file structure)
     │       ├── lib/log.sh
     │       ├── lib/fs.sh
     │       └── generate_*_files()
-    ├── sync-governance.sh         (injection gouvernance)
+    ├── sync-governance.sh         (governance injection)
     │       └── lib/gh.sh
-    ├── install-awesome-copilot.sh (téléchargement éléments)
+    ├── install-awesome-copilot.sh (item downloads)
     │       └── lib/gh.sh
-    ├── init-github-repo.sh        (création GitHub)
+    ├── init-github-repo.sh        (GitHub creation)
     ├── init-labels.sh             (labels)
     ├── init-milestones.sh         (milestones)
     └── init-adr.sh                (ADR-0001)
 ```
 
-## Flux de données
+## Data flow
 
 ```
 config/templates.yml
-    └── apply-template.sh ──────→ <dest>/ (fichiers standards)
+    └── apply-template.sh ──────→ <dest>/ (standard files)
 
 config/awesome-copilot-bundles.yml
     ├── sync-governance.sh ─────→ <dest>/.github/instructions/
@@ -59,16 +59,16 @@ config/awesome-copilot-bundles.yml
                                      <dest>/.github/plugins/
 ```
 
-## Gestion des erreurs
+## Error handling
 
-- `set -euo pipefail` dans tous les scripts
-- Patterns `if/fi` plutôt que `[[ ]] && { }` (compatibilité bash 3 + set -e)
-- Fonctions se terminant par `return 0` pour éviter les faux positifs
-- Messages d'erreur explicites avec contexte
+- `set -euo pipefail` in every script
+- `if/fi` patterns rather than `[[ ]] && { }` (bash 3 + set -e compatibility)
+- Functions ending with `return 0` to avoid false positives
+- Explicit error messages with context
 
-## Sécurité
+## Security
 
-- Aucun secret dans les fichiers générés
-- `--force` requiert la saisie de "CONFIRM_OVERWRITE"
-- `session-auto-commit` désactivé par défaut
-- `grep` sur les fichiers générés pour détecter les patterns sensibles
+- No secrets in generated files
+- `--force` requires typing "CONFIRM_OVERWRITE"
+- `session-auto-commit` disabled by default
+- `grep` over generated files to detect sensitive patterns

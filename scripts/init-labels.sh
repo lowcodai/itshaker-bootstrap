@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# init-labels.sh — Crée les labels GitHub standards depuis config/labels.yml
+# init-labels.sh — Creates standard GitHub labels from config/labels.yml
 # Usage: ./scripts/init-labels.sh --repo <org/name>
 set -euo pipefail
 
@@ -22,11 +22,11 @@ parse_args() {
       -r|--repo)    REPO="$2"; shift 2 ;;
       --dry-run)    DRY_RUN=true; shift ;;
       --verbose)    VERBOSE=true; shift ;;
-      *) log_error "Argument inconnu: $1"; exit 1 ;;
+      *) log_error "Unknown argument: $1"; exit 1 ;;
     esac
   done
   if [[ -z "$REPO" ]]; then
-    log_error "--repo requis (format: org/nom)"
+    log_error "--repo is required (format: org/name)"
     exit 1
   fi
   return 0
@@ -34,50 +34,50 @@ parse_args() {
 
 main() {
   parse_args "$@"
-  log_section "Création des labels GitHub pour: $REPO"
+  log_section "Creating GitHub labels for: $REPO"
 
   gh_check_auth || return 1
   require_file "$LABELS_CONFIG" "config/labels.yml"
 
   if ! command -v python3 &>/dev/null; then
-    log_warn "python3 non disponible — création manuelle via gh api"
-    log_info "Installer python3 puis relancer, ou créer les labels manuellement"
+    log_warn "python3 not available — create manually via gh api"
+    log_info "Install python3 then retry, or create the labels manually"
     return 0
   fi
 
-  # Parser le YAML et créer les labels
+  # Parse the YAML and create the labels
   python3 - "$LABELS_CONFIG" "$REPO" << 'PYEOF'
 import sys, subprocess, json
 
 try:
     import yaml
 except ImportError:
-    print("[WARN] PyYAML non installé: pip3 install pyyaml")
+    print("[WARN] PyYAML not installed: pip3 install pyyaml")
     sys.exit(0)
 
 config_file, repo = sys.argv[1], sys.argv[2]
 with open(config_file) as f:
     data = yaml.safe_load(f)
 
-dry_run = False  # Contrôlé par le shell parent via env
+dry_run = False  # Controlled by the parent shell via env
 
 for label in data.get('labels', []):
     name = label['name']
     color = label['color']
     desc = label.get('description', '')
 
-    # Vérifier si le label existe
+    # Check if the label already exists
     result = subprocess.run(
         ['gh', 'api', f'repos/{repo}/labels', '--jq', '.[].name'],
         capture_output=True, text=True
     )
     existing = result.stdout.strip().split('\n')
-    
+
     if name in existing:
-        print(f"[SKIP] Label déjà existant: {name}")
+        print(f"[SKIP] Label already exists: {name}")
         continue
 
-    print(f"[INFO] Création du label: {name}")
+    print(f"[INFO] Creating label: {name}")
     subprocess.run([
         'gh', 'api', f'repos/{repo}/labels',
         '--method', 'POST',
@@ -85,10 +85,10 @@ for label in data.get('labels', []):
         '--field', f'color={color}',
         '--field', f'description={desc}'
     ], check=True, capture_output=True)
-    print(f"[OK]   Label créé: {name}")
+    print(f"[OK]   Label created: {name}")
 
 PYEOF
-  log_success "Labels créés pour: $REPO"
+  log_success "Labels created for: $REPO"
 }
 
 main "$@"

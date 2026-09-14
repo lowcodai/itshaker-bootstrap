@@ -1,77 +1,77 @@
 # config/labels.yml
-# Labels GitHub standards créés par init-labels.sh
-# Format: name, color (hex sans #), description
+# Standard GitHub labels created by init-labels.sh
+# Format: name, color (hex without #), description
 
 labels:
-  # Type d'issue
+  # Issue type
   - name: "type: bug"
     color: "d73a4a"
-    description: "Quelque chose ne fonctionne pas"
+    description: "Something isn't working"
   - name: "type: feature"
     color: "0075ca"
-    description: "Nouvelle fonctionnalité ou amélioration"
+    description: "New feature or enhancement"
   - name: "type: chore"
     color: "e4e669"
-    description: "Tâche de maintenance, refactoring"
+    description: "Maintenance task, refactoring"
   - name: "type: docs"
     color: "0052cc"
-    description: "Documentation uniquement"
+    description: "Documentation only"
   - name: "type: security"
     color: "b60205"
-    description: "Problème de sécurité"
+    description: "Security issue"
   - name: "type: adr"
     color: "5319e7"
     description: "Architecture Decision Record"
 
-  # Priorité
+  # Priority
   - name: "priority: critical"
     color: "b60205"
-    description: "Priorité critique — à traiter immédiatement"
+    description: "Critical priority — must be addressed immediately"
   - name: "priority: high"
     color: "e99695"
-    description: "Priorité haute"
+    description: "High priority"
   - name: "priority: medium"
     color: "fbca04"
-    description: "Priorité moyenne"
+    description: "Medium priority"
   - name: "priority: low"
     color: "c2e0c6"
-    description: "Priorité basse"
+    description: "Low priority"
 
-  # Statut
+  # Status
   - name: "status: in-progress"
     color: "0075ca"
-    description: "En cours de traitement"
+    description: "Currently being worked on"
   - name: "status: blocked"
     color: "d93f0b"
-    description: "Bloqué — en attente de résolution"
+    description: "Blocked — awaiting resolution"
   - name: "status: needs-review"
     color: "fbca04"
-    description: "En attente de revue"
+    description: "Awaiting review"
   - name: "status: wontfix"
     color: "ffffff"
-    description: "Ne sera pas corrigé"
+    description: "Will not be fixed"
 
-  # Composant
+  # Component
   - name: "component: ci-cd"
     color: "1d76db"
-    description: "Pipeline CI/CD"
+    description: "CI/CD pipeline"
   - name: "component: docs"
     color: "0052cc"
     description: "Documentation"
   - name: "component: governance"
     color: "5319e7"
-    description: "Gouvernance et politiques"
+    description: "Governance and policies"
   - name: "component: security"
     color: "b60205"
-    description: "Sécurité"
+    description: "Security"
 
-  # Copilot spécifique
+  # Copilot-specific
   - name: "copilot: agent"
     color: "7b2d8b"
-    description: "Lié aux agents Copilot"
+    description: "Related to Copilot agents"
   - name: "copilot: skill"
     color: "7b2d8b"
-    description: "Lié aux skills Copilot"
+    description: "Related to Copilot skills"
   - name: "copilot: instruction"
     color: "7b2d8b"
-    description: "Lié aux instructions Copilot"
+    description: "Related to Copilot instructions"

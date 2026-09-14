@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# apply-template.sh — Copie et instancie un template dans le répertoire cible
+# apply-template.sh — Copies and instantiates a template into the target directory
 # Usage: ./scripts/apply-template.sh --type <base|infra|ai|app> --name <repo-name> --dest <dest-dir>
 set -euo pipefail
 
@@ -8,9 +8,9 @@ BOOTSTRAP_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 source "${SCRIPT_DIR}/lib/log.sh"
 source "${SCRIPT_DIR}/lib/fs.sh"
 
-# Trap pour afficher les erreurs avec contexte
+# Trap to show errors with context
 
-# Variables globales (peuvent être surchargées par new-project.sh)
+# Global variables (can be overridden by new-project.sh)
 : "${DRY_RUN:=false}"
 : "${VERBOSE:=false}"
 : "${EXTEND_ONLY:=false}"
@@ -20,9 +20,9 @@ TEMPLATE_TYPE=""
 REPO_NAME=""
 DEST_DIR=""
 DATE_TODAY="$(date +%Y-%m-%d)"
-LANG_CODE="en"   # défaut: anglais. Override: --lang fr pour continuer une ligne française existante.
+LANG_CODE="en"   # Only 'en' is supported. The flag is kept for CLI compatibility; French generation has been retired.
 
-# ─── Parsing des arguments ────────────────────────────────────────────────────
+# ─── Argument parsing ─────────────────────────────────────────────────────────
 parse_args() {
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -34,30 +34,30 @@ parse_args() {
       --verbose)      VERBOSE=true; shift ;;
       --extend-only)  EXTEND_ONLY=true; shift ;;
       --force)        FORCE=true; shift ;;
-      *) log_error "Argument inconnu: $1"; exit 1 ;;
+      *) log_error "Unknown argument: $1"; exit 1 ;;
     esac
   done
 
   if [[ -z "$TEMPLATE_TYPE" ]]; then
-    log_error "--type requis (base|infra|ai|app)"
+    log_error "--type is required (base|infra|ai|app)"
     exit 1
   fi
   if [[ -z "$REPO_NAME" ]]; then
-    log_error "--name requis"
+    log_error "--name is required"
     exit 1
   fi
   if [[ -z "$DEST_DIR" ]]; then
-    log_error "--dest requis"
+    log_error "--dest is required"
     exit 1
   fi
-  if [[ "$LANG_CODE" != "en" && "$LANG_CODE" != "fr" ]]; then
-    log_error "--lang doit être 'en' ou 'fr' (reçu: ${LANG_CODE})"
+  if [[ "$LANG_CODE" != "en" ]]; then
+    log_error "French generation has been retired; only English (--lang en) is supported (received: ${LANG_CODE})"
     exit 1
   fi
   return 0
 }
 
-# ─── Validation ──────────────────────────────────────────────────────────────
+# ─── Validation ────────────────────────────────────────────────────────────────
 validate() {
   local valid_types=("base" "infra" "ai" "app")
   local valid=false
@@ -65,18 +65,18 @@ validate() {
     [[ "$TEMPLATE_TYPE" == "$t" ]] && valid=true && break
   done
   if [[ "$valid" == "false" ]]; then
-    log_error "Type invalide: $TEMPLATE_TYPE (valeurs: base|infra|ai|app)"
+    log_error "Invalid type: $TEMPLATE_TYPE (values: base|infra|ai|app)"
     exit 1
   fi
 
   if ! [[ "$REPO_NAME" =~ ^[a-z0-9][a-z0-9-]*[a-z0-9]$|^[a-z0-9]$ ]]; then
-    log_error "Nom de repo invalide: $REPO_NAME (alphanumérique minuscule et tirets)"
+    log_error "Invalid repo name: $REPO_NAME (lowercase alphanumeric and hyphens)"
     exit 1
   fi
   return 0
 }
 
-# ─── Substitution des placeholders ───────────────────────────────────────────
+# ─── Placeholder substitution ──────────────────────────────────────────────────
 substitute_placeholders() {
   local file="$1"
   [[ ! -f "$file" ]] && return
@@ -89,18 +89,18 @@ substitute_placeholders() {
     "$file" > "$tmp" && mv "$tmp" "$file"
 }
 
-# ─── Copie des fichiers de base communs ──────────────────────────────────────
+# ─── Copy common base files ────────────────────────────────────────────────────
 apply_base_files() {
-  log_section "Application du template base"
+  log_section "Applying base template"
   local template_src="${BOOTSTRAP_DIR}/../itshaker-template-base"
 
   if [[ ! -d "$template_src" ]]; then
-    log_warn "Template source introuvable: $template_src — utilisation des fichiers inline"
+    log_warn "Template source not found: $template_src — using inline files"
     generate_base_files_inline
     return
   fi
 
-  # Copie récursive avec respect du mode
+  # Recursive copy while preserving mode
   find "$template_src" -type f | while IFS= read -r src_file; do
     local rel_path="${src_file#${template_src}/}"
     local dest_file="${DEST_DIR}/${rel_path}"
@@ -109,9 +109,9 @@ apply_base_files() {
   done
 }
 
-# ─── Génération inline si template source absent ─────────────────────────────
+# ─── Inline generation when the template source is absent ─────────────────────
 generate_base_files_inline() {
-  # En dry-run, lister les fichiers qui seraient créés sans les créer
+  # In dry-run, list the files that would be created without creating them
   if [[ "${DRY_RUN:-false}" == "true" ]]; then
     local base_files=(
       "README.md" "CHANGELOG.md" "BACKLOG.md" "ROADMAP.md" "AGENTS.md"
@@ -119,31 +119,31 @@ generate_base_files_inline() {
       "docs/adr/.gitkeep" "docs/architecture/.gitkeep" "docs/runbooks/.gitkeep"
     )
     for f in "${base_files[@]}"; do
-      log_dry "Créer: ${DEST_DIR}/${f}"
+      log_dry "Create: ${DEST_DIR}/${f}"
     done
     return 0
   fi
 
-  # Créer le répertoire cible si absent
+  # Create the target directory if absent
   mkdir -p "$DEST_DIR" "${DEST_DIR}/.github"
 
-  log_info "Génération des fichiers standards..."
+  log_info "Generating standard files..."
 
   # README.md
   if [[ ! -f "${DEST_DIR}/README.md" ]]; then
     cat > "${DEST_DIR}/README.md" << EOF
 # {{REPO_NAME}}
 
-> Type: ${TEMPLATE_TYPE} | Créé le: ${DATE_TODAY}
+> Type: ${TEMPLATE_TYPE} | Created on: ${DATE_TODAY}
 
 ## Description
 
-<!-- TODO: Décrire le projet -->
+<!-- TODO: Describe the project -->
 
-## Démarrage rapide
+## Quick start
 
 \`\`\`bash
-# TODO: Commandes de démarrage
+# TODO: Startup commands
 \`\`\`
 
 ## Documentation
@@ -155,16 +155,16 @@ generate_base_files_inline() {
 - [ROADMAP](ROADMAP.md)
 - [CONTRIBUTING](CONTRIBUTING.md)
 
-## Agents Copilot disponibles
+## Available Copilot agents
 
-Voir [AGENTS.md](AGENTS.md)
+See [AGENTS.md](AGENTS.md)
 
-## Licence
+## License
 
-Voir [LICENSE](LICENSE)
+See [LICENSE](LICENSE)
 EOF
     [[ "${DRY_RUN:-false}" != "true" ]] && sed -i.bak "s/{{REPO_NAME}}/${REPO_NAME}/g" "${DEST_DIR}/README.md" && rm -f "${DEST_DIR}/README.md.bak"
-    log_success "Créé: README.md"
+    log_success "Created: README.md"
   else
     log_skip "README.md"
   fi
@@ -174,15 +174,15 @@ EOF
     cat > "${DEST_DIR}/CHANGELOG.md" << 'EOF'
 # Changelog
 
-Toutes les modifications notables de ce projet sont documentées ici.
-Format: [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
+All notable changes to this project are documented here.
+Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
 ## [Unreleased]
 
 ### Added
-- Initialisation du projet
+- Project initialization
 EOF
-    log_success "Créé: CHANGELOG.md"
+    log_success "Created: CHANGELOG.md"
   else
     log_skip "CHANGELOG.md"
   fi
@@ -192,31 +192,30 @@ EOF
     cat > "${DEST_DIR}/BACKLOG.md" << 'EOF'
 # Backlog
 
-## Épics
+## Epics
 
-| ID | Titre | Priorité | Statut |
+| ID | Title | Priority | Status |
 |----|-------|----------|--------|
-| E1 | Initialisation | Haute | En cours |
+| E1 | Initialization | High | In progress |
 
 ## Stories
 
-| ID | Épic | Titre | Priorité | Statut |
+| ID | Epic | Title | Priority | Status |
 |----|------|-------|----------|--------|
-| S1 | E1 | Setup initial du projet | Haute | Done |
+| S1 | E1 | Initial project setup | High | Done |
 
 ## Icebox
 
-> Issues non planifiées pour l'instant
+> Issues not yet planned
 EOF
-    log_success "Créé: BACKLOG.md"
+    log_success "Created: BACKLOG.md"
   else
     log_skip "BACKLOG.md"
   fi
 
   # ROADMAP.md
   if [[ ! -f "${DEST_DIR}/ROADMAP.md" ]]; then
-    if [[ "$LANG_CODE" == "en" ]]; then
-      cat > "${DEST_DIR}/ROADMAP.md" << EOF
+    cat > "${DEST_DIR}/ROADMAP.md" << EOF
 # Roadmap — ${REPO_NAME}
 
 ## v0.1-alpha — Initialization
@@ -229,36 +228,16 @@ EOF
 - [ ] Full test coverage
 - [ ] Complete documentation
 EOF
-    else
-      cat > "${DEST_DIR}/ROADMAP.md" << EOF
-# Roadmap — ${REPO_NAME}
-
-## v0.1-alpha — Initialisation
-- [ ] Setup projet
-- [ ] Documentation initiale
-- [ ] CI/CD de base
-
-## v1.0 — Production Ready
-- [ ] Fonctionnalités core
-- [ ] Tests complets
-- [ ] Documentation complète
-EOF
-    fi
     [[ "${DRY_RUN:-false}" != "true" ]] && sed -i.bak "s/{{REPO_NAME}}/${REPO_NAME}/g" "${DEST_DIR}/ROADMAP.md" && rm -f "${DEST_DIR}/ROADMAP.md.bak"
-    log_success "Créé: ROADMAP.md"
+    log_success "Created: ROADMAP.md"
   else
     log_skip "ROADMAP.md"
   fi
 
   # AGENTS.md
   if [[ ! -f "${DEST_DIR}/AGENTS.md" ]]; then
-    if [[ "$LANG_CODE" == "en" ]]; then
-      LANG_SECTION=$'## Language\n\nAll repository documentation is written in English (ADRs, PRDs, runbooks, README, code comments). No retroactive translation required for pre-existing content.'
-    else
-      LANG_SECTION=$'## Language\n\nDocumentation de ce dépôt en français (héritage). Pas de traduction rétroactive exigée.'
-    fi
-    if [[ "$LANG_CODE" == "en" ]]; then
-      cat > "${DEST_DIR}/AGENTS.md" << EOF
+    LANG_SECTION=$'## Language\n\nAll repository documentation is written in English (ADRs, PRDs, runbooks, README, code comments). No retroactive translation required for pre-existing content.'
+    cat > "${DEST_DIR}/AGENTS.md" << EOF
 # Copilot Agents
 
 ${LANG_SECTION}
@@ -278,37 +257,14 @@ Source: [github/awesome-copilot](https://github.com/github/awesome-copilot)
 In GitHub Copilot Chat, reference an agent with \`@<agent-name>\`.
 Custom agents are automatically available via their \`.agent.md\` files.
 EOF
-    else
-      cat > "${DEST_DIR}/AGENTS.md" << EOF
-# Agents Copilot
-
-${LANG_SECTION}
-
-Ce fichier liste les agents GitHub Copilot disponibles dans ce projet.
-Source: [github/awesome-copilot](https://github.com/github/awesome-copilot)
-
-## Agents installés
-
-| Agent | Description | Fichier |
-|-------|-------------|---------|
-| ADR Generator | Génère des Architecture Decision Records | \`.github/agents/adr-generator.agent.md\` |
-| PRD Generator | Génère des Product Requirement Documents | \`.github/agents/prd-generator.agent.md\` |
-
-## Utilisation
-
-Dans GitHub Copilot Chat, référencer un agent avec \`@<agent-name>\`.
-Pour les agents custom, ils sont disponibles automatiquement via les fichiers \`.agent.md\`.
-EOF
-    fi
-    log_success "Créé: AGENTS.md"
+    log_success "Created: AGENTS.md"
   else
     log_skip "AGENTS.md"
   fi
 
   # CONTRIBUTING.md
   if [[ ! -f "${DEST_DIR}/CONTRIBUTING.md" ]]; then
-    if [[ "$LANG_CODE" == "en" ]]; then
-      cat > "${DEST_DIR}/CONTRIBUTING.md" << 'EOF'
+    cat > "${DEST_DIR}/CONTRIBUTING.md" << 'EOF'
 # Contributing guide
 
 ## Prerequisites
@@ -327,7 +283,7 @@ EOF
 
 ## Conventions
 
-See the standards in [itshaker-copilot-governance](https://github.com/itshaker/itshaker-copilot-governance).
+See the standards in [itshaker-copilot-governance](https://github.com/lowcodai/itshaker-copilot-governance).
 
 ## Conventional commits
 
@@ -340,41 +296,7 @@ refactor: refactoring
 test: tests
 ```
 EOF
-    else
-      cat > "${DEST_DIR}/CONTRIBUTING.md" << 'EOF'
-# Guide de contribution
-
-## Prérequis
-
-- Git
-- GitHub CLI (`gh`)
-- Accès au repo
-
-## Workflow
-
-1. Créer une branche depuis `main`: `git checkout -b feat/ma-feature`
-2. Faire les modifications
-3. Commiter avec message conventionnel: `feat: description`
-4. Ouvrir une PR vers `main`
-5. Attendre la revue
-
-## Conventions
-
-Voir les standards dans [itshaker-copilot-governance](https://github.com/itshaker/itshaker-copilot-governance).
-
-## Commits conventionnels
-
-```
-feat: nouvelle fonctionnalité
-fix: correction de bug
-docs: documentation
-chore: maintenance
-refactor: refactoring
-test: tests
-```
-EOF
-    fi
-    log_success "Créé: CONTRIBUTING.md"
+    log_success "Created: CONTRIBUTING.md"
   else
     log_skip "CONTRIBUTING.md"
   fi
@@ -382,28 +304,28 @@ EOF
   # SECURITY.md
   if [[ ! -f "${DEST_DIR}/SECURITY.md" ]]; then
     cat > "${DEST_DIR}/SECURITY.md" << 'EOF'
-# Politique de sécurité
+# Security Policy
 
-## Signaler une vulnérabilité
+## Reporting a Vulnerability
 
-Pour signaler une vulnérabilité de sécurité, veuillez utiliser
-[GitHub Security Advisories](../../security/advisories/new) (privé).
+To report a security vulnerability, please use
+[GitHub Security Advisories](../../security/advisories/new) (private).
 
-**Ne pas ouvrir d'issue publique pour des problèmes de sécurité.**
+**Do not open a public issue for security problems.**
 
-## Délai de réponse
+## Response Time
 
-- Accusé de réception : sous 48h
-- Évaluation initiale : sous 7 jours
-- Correctif : selon la sévérité
+- Acknowledgment: within 48h
+- Initial assessment: within 7 days
+- Fix: depending on severity
 
-## Versions supportées
+## Supported Versions
 
 | Version | Support |
 |---------|---------|
 | latest  | ✓ |
 EOF
-    log_success "Créé: SECURITY.md"
+    log_success "Created: SECURITY.md"
   fi
 
   # SUPPORT.md
@@ -411,16 +333,16 @@ EOF
     cat > "${DEST_DIR}/SUPPORT.md" << 'EOF'
 # Support
 
-## Obtenir de l'aide
+## Getting Help
 
-- Ouvrir une [issue](../../issues/new/choose)
-- Consulter la [documentation](docs/)
+- Open an [issue](../../issues/new/choose)
+- Check the [documentation](docs/)
 
 ## Bugs
 
-Pour les bugs, utiliser le template [bug_report](.github/ISSUE_TEMPLATE/bug_report.yml).
+For bugs, use the [bug_report](.github/ISSUE_TEMPLATE/bug_report.yml) template.
 EOF
-    log_success "Créé: SUPPORT.md"
+    log_success "Created: SUPPORT.md"
   else
     log_skip "SUPPORT.md"
   fi
@@ -450,20 +372,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 EOF
-    log_success "Créé: LICENSE"
+    log_success "Created: LICENSE"
   else
     log_skip "LICENSE"
   fi
 
-  # Répertoires avec .gitkeep
+  # Directories with .gitkeep
   for dir in docs/adr docs/architecture docs/runbooks; do
     ensure_dir_with_gitkeep "${DEST_DIR}/${dir}"
   done
 }
 
-# ─── Fichiers .github ─────────────────────────────────────────────────────────
+# ─── .github files ──────────────────────────────────────────────────────────────
 generate_github_files() {
-  # En dry-run, lister les fichiers qui seraient créés
+  # In dry-run, list the files that would be created
   if [[ "${DRY_RUN:-false}" == "true" ]]; then
     local github_files=(
       ".github/copilot-instructions.md" ".github/PULL_REQUEST_TEMPLATE.md"
@@ -472,19 +394,18 @@ generate_github_files() {
       ".github/instructions/.gitkeep" ".github/hooks/.gitkeep" ".github/agents/.gitkeep"
     )
     for f in "${github_files[@]}"; do
-      log_dry "Créer: ${DEST_DIR}/${f}"
+      log_dry "Create: ${DEST_DIR}/${f}"
     done
     return 0
   fi
 
-  log_section "Génération des fichiers .github"
+  log_section "Generating .github files"
   local github_dir="${DEST_DIR}/.github"
   mkdir -p "$github_dir"
 
   # copilot-instructions.md
   if [[ ! -f "${github_dir}/copilot-instructions.md" ]]; then
-    if [[ "$LANG_CODE" == "en" ]]; then
-      cat > "${github_dir}/copilot-instructions.md" << EOF
+    cat > "${github_dir}/copilot-instructions.md" << EOF
 # Copilot Instructions — ${REPO_NAME}
 
 ## Project type
@@ -494,34 +415,15 @@ ${TEMPLATE_TYPE}
 <!-- TODO: Describe the project context for Copilot agents -->
 
 ## Standards
-- Follow the conventions defined in [itshaker-copilot-governance](https://github.com/itshaker/itshaker-copilot-governance)
+- Follow the conventions defined in [itshaker-copilot-governance](https://github.com/lowcodai/itshaker-copilot-governance)
 - Use conventional commits
 - Document architecture decisions in docs/adr/
 
 ## Specific instructions
 <!-- TODO: Add project-specific instructions -->
 EOF
-    else
-      cat > "${github_dir}/copilot-instructions.md" << EOF
-# Instructions Copilot — ${REPO_NAME}
-
-## Type de projet
-${TEMPLATE_TYPE}
-
-## Contexte
-<!-- TODO: Décrire le contexte du projet pour les agents Copilot -->
-
-## Standards
-- Suivre les conventions définies dans [itshaker-copilot-governance](https://github.com/itshaker/itshaker-copilot-governance)
-- Utiliser des commits conventionnels
-- Documenter les décisions d'architecture dans docs/adr/
-
-## Instructions spécifiques
-<!-- TODO: Ajouter les instructions spécifiques à ce projet -->
-EOF
-    fi
     [[ "${DRY_RUN:-false}" != "true" ]] && sed -i.bak "s/{{REPO_NAME}}/${REPO_NAME}/g" "${github_dir}/copilot-instructions.md" && rm -f "${github_dir}/copilot-instructions.md.bak"
-    log_success "Créé: .github/copilot-instructions.md"
+    log_success "Created: .github/copilot-instructions.md"
   else
     log_skip ".github/copilot-instructions.md"
   fi
@@ -531,34 +433,34 @@ EOF
     cat > "${github_dir}/PULL_REQUEST_TEMPLATE.md" << 'EOF'
 ## Description
 
-<!-- Décrire les changements apportés par cette PR -->
+<!-- Describe the changes introduced by this PR -->
 
-## Type de changement
+## Type of change
 
 - [ ] 🐛 Bug fix
-- [ ] ✨ Nouvelle fonctionnalité
+- [ ] ✨ New feature
 - [ ] 📝 Documentation
 - [ ] 🔧 Maintenance / refactoring
-- [ ] 🔒 Sécurité
+- [ ] 🔒 Security
 - [ ] 🏗️ Infrastructure
 
 ## Checklist
 
-- [ ] Le code respecte les conventions du projet
-- [ ] Les tests passent localement
-- [ ] La documentation est à jour
-- [ ] Aucun secret n'est inclus dans ce commit
-- [ ] Les ADR nécessaires ont été créés (si décision d'architecture)
+- [ ] Code follows the project conventions
+- [ ] Tests pass locally
+- [ ] Documentation is up to date
+- [ ] No secrets are included in this commit
+- [ ] Necessary ADRs have been created (if architecture decision)
 
-## Issues liées
+## Related issues
 
-Closes #<!-- numéro d'issue -->
+Closes #<!-- issue number -->
 
-## Tests effectués
+## Tests performed
 
-<!-- Décrire les tests réalisés -->
+<!-- Describe the tests performed -->
 EOF
-    log_success "Créé: .github/PULL_REQUEST_TEMPLATE.md"
+    log_success "Created: .github/PULL_REQUEST_TEMPLATE.md"
   else
     log_skip ".github/PULL_REQUEST_TEMPLATE.md"
   fi
@@ -568,42 +470,42 @@ EOF
   if [[ ! -f "${github_dir}/ISSUE_TEMPLATE/bug_report.yml" ]]; then
     cat > "${github_dir}/ISSUE_TEMPLATE/bug_report.yml" << 'EOF'
 name: 🐛 Bug Report
-description: Signaler un bug
+description: Report a bug
 labels: ["type: bug"]
 body:
   - type: markdown
     attributes:
-      value: "Merci de remplir ce formulaire pour signaler un bug."
+      value: "Thank you for filling out this form to report a bug."
   - type: textarea
     id: description
     attributes:
       label: Description
-      description: Description claire du bug
+      description: Clear description of the bug
     validations:
       required: true
   - type: textarea
     id: reproduction
     attributes:
-      label: Étapes de reproduction
+      label: Steps to reproduce
       placeholder: |
-        1. Aller à '...'
-        2. Faire '...'
-        3. Voir l'erreur
+        1. Go to '...'
+        2. Do '...'
+        3. See the error
     validations:
       required: true
   - type: textarea
     id: expected
     attributes:
-      label: Comportement attendu
+      label: Expected behavior
     validations:
       required: true
   - type: textarea
     id: environment
     attributes:
-      label: Environnement
+      label: Environment
       placeholder: "OS, version, etc."
 EOF
-    log_success "Créé: .github/ISSUE_TEMPLATE/bug_report.yml"
+    log_success "Created: .github/ISSUE_TEMPLATE/bug_report.yml"
   else
     log_skip ".github/ISSUE_TEMPLATE/bug_report.yml"
   fi
@@ -612,34 +514,34 @@ EOF
   if [[ ! -f "${github_dir}/ISSUE_TEMPLATE/feature_request.yml" ]]; then
     cat > "${github_dir}/ISSUE_TEMPLATE/feature_request.yml" << 'EOF'
 name: ✨ Feature Request
-description: Proposer une nouvelle fonctionnalité
+description: Propose a new feature
 labels: ["type: feature"]
 body:
   - type: textarea
     id: problem
     attributes:
-      label: Problème à résoudre
-      description: Quel problème cette feature résout-elle ?
+      label: Problem to solve
+      description: What problem does this feature solve?
     validations:
       required: true
   - type: textarea
     id: solution
     attributes:
-      label: Solution proposée
+      label: Proposed solution
     validations:
       required: true
   - type: dropdown
     id: priority
     attributes:
-      label: Priorité
-      options: ["Critique", "Haute", "Moyenne", "Basse"]
+      label: Priority
+      options: ["Critical", "High", "Medium", "Low"]
 EOF
-    log_success "Créé: .github/ISSUE_TEMPLATE/feature_request.yml"
+    log_success "Created: .github/ISSUE_TEMPLATE/feature_request.yml"
   else
     log_skip ".github/ISSUE_TEMPLATE/feature_request.yml"
   fi
 
-  # Workflows CI/CD de base
+  # Base CI/CD workflows
   run_cmd mkdir -p "${github_dir}/workflows"
 
   if [[ ! -f "${github_dir}/workflows/ci.yml" ]]; then
@@ -669,11 +571,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      # Sur un push, `base`/`head` doivent être les commits before/after du push (pas
-      # "main"/HEAD, qui pointent sur le même commit une fois checkout effectué — TruffleHog
-      # sort alors en erreur avec "BASE and HEAD commits are the same"). `before` vaut le SHA nul
-      # sur le tout premier push d'une branche : on scanne alors tout l'historique (aucun `base`)
-      # plutôt que de planter.
+      # On a push, `base`/`head` must be the before/after commits of the push (not
+      # "main"/HEAD, which point to the same commit once checkout is done — TruffleHog
+      # then errors out with "BASE and HEAD commits are the same"). `before` is the null SHA
+      # on a branch's very first push: in that case we scan the whole history (no `base`)
+      # instead of failing.
       - name: Scan for secrets (push)
         if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
         uses: trufflesecurity/trufflehog@main
@@ -681,7 +583,7 @@ jobs:
           path: ./
           base: ${{ github.event.before }}
           head: ${{ github.event.after }}
-      - name: Scan for secrets (push — premier commit de la branche)
+      - name: Scan for secrets (push — first commit of the branch)
         if: github.event_name == 'push' && github.event.before == '0000000000000000000000000000000000000000'
         uses: trufflesecurity/trufflehog@main
         with:
@@ -694,7 +596,7 @@ jobs:
           base: ${{ github.event.pull_request.base.sha }}
           head: ${{ github.event.pull_request.head.sha }}
 EOF
-    log_success "Créé: .github/workflows/ci.yml"
+    log_success "Created: .github/workflows/ci.yml"
   else
     log_skip ".github/workflows/ci.yml"
   fi
@@ -709,7 +611,7 @@ on:
 
 jobs:
   check-files:
-    name: Vérification fichiers obligatoires
+    name: Check required files
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -731,7 +633,7 @@ jobs:
           done
 
   check-secrets:
-    name: Vérification absence de secrets
+    name: Check for absence of secrets
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -745,30 +647,30 @@ jobs:
           fi
           echo "No obvious secrets found"
 EOF
-    log_success "Créé: .github/workflows/governance-check.yml"
+    log_success "Created: .github/workflows/governance-check.yml"
   else
     log_skip ".github/workflows/governance-check.yml"
   fi
 
-  # Répertoires pour instructions, hooks, agents
+  # Directories for instructions, hooks, agents
   for dir in instructions hooks agents; do
     ensure_dir_with_gitkeep "${github_dir}/${dir}"
   done
 }
 
-# ─── Fichiers spécifiques par type ───────────────────────────────────────────
+# ─── Type-specific files ────────────────────────────────────────────────────────
 apply_type_specific() {
   if [[ "${DRY_RUN:-false}" == "true" ]]; then
-    log_dry "Appliquer fichiers spécifiques type: $TEMPLATE_TYPE"
+    log_dry "Apply type-specific files: $TEMPLATE_TYPE"
     return 0
   fi
-  log_section "Application des fichiers spécifiques: $TEMPLATE_TYPE"
+  log_section "Applying type-specific files: $TEMPLATE_TYPE"
 
   case "$TEMPLATE_TYPE" in
     infra) apply_infra_files ;;
     ai)    apply_ai_files ;;
     app)   apply_app_files ;;
-    base)  log_verbose "Type base: pas de fichiers spécifiques additionnels" ;;
+    base)  log_verbose "Type base: no additional type-specific files" ;;
   esac
 }
 
@@ -778,7 +680,7 @@ apply_infra_files() {
     ensure_dir_with_gitkeep "${DEST_DIR}/${dir}"
   done
 
-  # Workflow Ansible lint
+  # Ansible lint workflow
   if [[ ! -f "${DEST_DIR}/.github/workflows/ansible-lint.yml" ]]; then
     cat > "${DEST_DIR}/.github/workflows/ansible-lint.yml" << 'EOF'
 name: Ansible Lint
@@ -796,10 +698,10 @@ jobs:
         with:
           path: ansible/
 EOF
-    log_success "Créé: .github/workflows/ansible-lint.yml"
+    log_success "Created: .github/workflows/ansible-lint.yml"
   fi
 
-  # Workflow Docker build
+  # Docker build workflow
   if [[ ! -f "${DEST_DIR}/.github/workflows/docker-build.yml" ]]; then
     cat > "${DEST_DIR}/.github/workflows/docker-build.yml" << 'EOF'
 name: Docker Build
@@ -814,7 +716,7 @@ jobs:
       - name: Build Docker image
         run: docker build -t ${{ github.repository }}:${{ github.sha }} .
 EOF
-    log_success "Créé: .github/workflows/docker-build.yml"
+    log_success "Created: .github/workflows/docker-build.yml"
   fi
 }
 
@@ -846,7 +748,7 @@ jobs:
           fi
           echo "AI safety check passed"
 EOF
-    log_success "Créé: .github/workflows/ai-safety-check.yml"
+    log_success "Created: .github/workflows/ai-safety-check.yml"
   fi
 }
 
@@ -873,7 +775,7 @@ jobs:
         with:
           generate_release_notes: true
 EOF
-    log_success "Créé: .github/workflows/release.yml"
+    log_success "Created: .github/workflows/release.yml"
   fi
 
   if [[ ! -f "${DEST_DIR}/.github/workflows/a11y-check.yml" ]]; then
@@ -888,9 +790,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Accessibility audit placeholder
-        run: echo "TODO: Configurer axe-core ou pa11y pour les tests d'accessibilité"
+        run: echo "TODO: Configure axe-core or pa11y for accessibility tests"
 EOF
-    log_success "Créé: .github/workflows/a11y-check.yml"
+    log_success "Created: .github/workflows/a11y-check.yml"
   fi
 }
 
@@ -899,7 +801,7 @@ main() {
   parse_args "$@"
   validate
 
-  log_section "Application du template '$TEMPLATE_TYPE' → $DEST_DIR"
+  log_section "Applying template '$TEMPLATE_TYPE' → $DEST_DIR"
 
   if [[ "${DRY_RUN:-false}" != "true" ]]; then
     run_cmd mkdir -p "$DEST_DIR"
@@ -910,8 +812,8 @@ main() {
   generate_github_files
   apply_type_specific
 
-  log_section "Template appliqué avec succès"
-  log_info "Répertoire: $DEST_DIR"
+  log_section "Template applied successfully"
+  log_info "Directory: $DEST_DIR"
 }
 
 main "$@"

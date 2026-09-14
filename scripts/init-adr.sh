@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# init-adr.sh — Génère le premier ADR (ADR-0001) pour un projet
+# init-adr.sh — Generates the first ADR (ADR-0001) for a project
 # Usage: ./scripts/init-adr.sh --dest <dest-dir> --name <repo-name> --type <template-type>
 set -euo pipefail
 
@@ -24,15 +24,15 @@ parse_args() {
       -t|--type)      TEMPLATE_TYPE="$2"; shift 2 ;;
       --dry-run)      DRY_RUN=true; shift ;;
       --verbose)      VERBOSE=true; shift ;;
-      *) log_error "Argument inconnu: $1"; exit 1 ;;
+      *) log_error "Unknown argument: $1"; exit 1 ;;
     esac
   done
   if [[ -z "$DEST_DIR" ]]; then
-    log_error "--dest requis"
+    log_error "--dest is required"
     exit 1
   fi
   if [[ -z "$REPO_NAME" ]]; then
-    log_error "--name requis"
+    log_error "--name is required"
     exit 1
   fi
   return 0
@@ -43,81 +43,81 @@ generate_adr_0001() {
   local adr_file="${adr_dir}/ADR-0001-initial-decisions.md"
 
   if [[ -f "$adr_file" ]]; then
-    log_skip "ADR-0001 déjà existant: $adr_file"
+    log_skip "ADR-0001 already exists: $adr_file"
     return 0
   fi
 
   run_cmd mkdir -p "$adr_dir"
 
   if [[ "${DRY_RUN:-false}" == "true" ]]; then
-    log_dry "Générer: $adr_file"
+    log_dry "Generate: $adr_file"
     return 0
   fi
 
-  # Contexte spécifique par type
+  # Type-specific context
   local type_context
   case "$TEMPLATE_TYPE" in
-    base)   type_context="Projet générique standardisé depuis itshaker-template-base." ;;
-    infra)  type_context="Projet infrastructure utilisant Ansible, Docker et GitHub Actions pour l'IaC et l'automatisation SRE." ;;
-    ai)     type_context="Projet IA/agents intégrant les pratiques de gouvernance IA, safety, et usage agentique de GitHub Copilot." ;;
-    app)    type_context="Application web/API avec CI/CD, accessibilité (a11y) et bonnes pratiques de développement." ;;
+    base)   type_context="Generic project standardized from itshaker-template-base." ;;
+    infra)  type_context="Infrastructure project using Ansible, Docker and GitHub Actions for IaC and SRE automation." ;;
+    ai)     type_context="AI/agents project integrating AI governance, safety, and agentic usage practices for GitHub Copilot." ;;
+    app)    type_context="Web/API application with CI/CD, accessibility (a11y) and good development practices." ;;
   esac
 
   cat > "$adr_file" << EOF
-# ADR-0001 — Décisions initiales du projet ${REPO_NAME}
+# ADR-0001 — Initial decisions for project ${REPO_NAME}
 
 **Date:** ${DATE_TODAY}
-**Statut:** Accepté
-**Décideurs:** <!-- TODO: Lister les décideurs -->
+**Status:** Accepted
+**Decision makers:** <!-- TODO: List the decision makers -->
 **Template:** itshaker-template-${TEMPLATE_TYPE}
 
-## Contexte
+## Context
 
 ${type_context}
 
-Ce projet est initialisé depuis la factory de templates itshaker, basée sur les bonnes pratiques DevOps, SRE, gouvernance IA et usage agentique de GitHub Copilot (source: [github/awesome-copilot](https://github.com/github/awesome-copilot)).
+This project is initialized from the itshaker template factory, based on DevOps, SRE, AI governance and agentic GitHub Copilot usage best practices (source: [github/awesome-copilot](https://github.com/github/awesome-copilot)).
 
-## Décisions
+## Decisions
 
-### 1. Template de base
-- **Choix:** itshaker-template-${TEMPLATE_TYPE}
-- **Raison:** Standardisation des projets ${TEMPLATE_TYPE} au sein de l'organisation
+### 1. Base template
+- **Choice:** itshaker-template-${TEMPLATE_TYPE}
+- **Reason:** Standardization of ${TEMPLATE_TYPE} projects within the organization
 
-### 2. Gouvernance Copilot
-- **Choix:** Référencer itshaker-copilot-governance pour les standards communs
-- **Raison:** Éviter la duplication, maintenir une source de vérité unique
+### 2. Copilot governance
+- **Choice:** Reference itshaker-copilot-governance for shared standards
+- **Reason:** Avoid duplication, maintain a single source of truth
 
 ### 3. Branching strategy
-- **Choix:** Git Flow simplifié (main + branches feature/*)
-- **Raison:** Simplicité et compatibilité avec GitHub Flow
+- **Choice:** Simplified Git Flow (main + feature/* branches)
+- **Reason:** Simplicity and compatibility with GitHub Flow
 
 ### 4. CI/CD
-- **Choix:** GitHub Actions
-- **Raison:** Intégration native GitHub, pas de dépendance externe
+- **Choice:** GitHub Actions
+- **Reason:** Native GitHub integration, no external dependency
 
-### 5. Conventions de commit
-- **Choix:** Conventional Commits (feat, fix, docs, chore...)
-- **Raison:** Compatibilité avec la génération automatique de CHANGELOG
+### 5. Commit conventions
+- **Choice:** Conventional Commits (feat, fix, docs, chore...)
+- **Reason:** Compatibility with automatic CHANGELOG generation
 
-## Conséquences
+## Consequences
 
-- Les projets héritent automatiquement des mises à jour de gouvernance via sync-governance.sh
-- Les agents Copilot (dont adr-generator) sont disponibles dès l'initialisation
-- Les hooks de sécurité (secrets-scanner, tool-guardian) sont actifs dès le départ
+- Projects automatically inherit governance updates via sync-governance.sh
+- Copilot agents (including adr-generator) are available from initialization
+- Security hooks (secrets-scanner, tool-guardian) are active from the start
 
-## Références
+## References
 
-- [itshaker-copilot-governance](https://github.com/itshaker/itshaker-copilot-governance)
+- [itshaker-copilot-governance](https://github.com/lowcodai/itshaker-copilot-governance)
 - [github/awesome-copilot](https://github.com/github/awesome-copilot)
 - [Conventional Commits](https://www.conventionalcommits.org)
 EOF
 
-  log_success "ADR-0001 généré: $adr_file"
+  log_success "ADR-0001 generated: $adr_file"
 }
 
 main() {
   parse_args "$@"
-  log_section "Génération de l'ADR-0001 pour: $REPO_NAME"
+  log_section "Generating ADR-0001 for: $REPO_NAME"
   generate_adr_0001
 }
 

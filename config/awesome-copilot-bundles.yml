@@ -1,56 +1,56 @@
 # config/awesome-copilot-bundles.yml
-# Définit les éléments awesome-copilot à installer pour chaque type de projet
+# Defines the awesome-copilot items to install for each project type
 # Source: https://github.com/github/awesome-copilot
 #
 # Installation:
 #   skills  → gh skills install github/awesome-copilot <name>  (requires gh CLI v2.90.0+)
 #   plugins → copilot plugin install <name>@awesome-copilot
-#   hooks   → copie du répertoire hooks/<name>/ vers .github/hooks/<name>/
-#   agents  → copie du fichier agents/<name>.agent.md vers .github/agents/<name>.agent.md
-#   instructions → copie du fichier instructions/<name>.instructions.md vers .github/instructions/
+#   hooks   → copy the hooks/<name>/ directory to .github/hooks/<name>/
+#   agents  → copy the agents/<name>.agent.md file to .github/agents/<name>.agent.md
+#   instructions → copy the instructions/<name>.instructions.md file to .github/instructions/
 
-# Éléments communs à tous les types de projets
+# Items common to all project types
 common:
   skills:
     - name: acquire-codebase-knowledge
-      description: "Acquisition rapide de la connaissance d'un codebase"
+      description: "Quickly acquire knowledge of a codebase"
     - name: breakdown-plan
-      description: "Décomposition d'un plan en tâches actionnables"
+      description: "Break down a plan into actionable tasks"
     - name: breakdown-epic-arch
-      description: "Décomposition d'un epic en décisions d'architecture"
+      description: "Break down an epic into architecture decisions"
     - name: breakdown-epic-pm
-      description: "Décomposition d'un epic en tâches PM"
+      description: "Break down an epic into PM tasks"
     - name: breakdown-feature-prd
-      description: "Génération de PRD pour une feature"
+      description: "Generate a PRD for a feature"
     - name: breakdown-feature-implementation
-      description: "Plan d'implémentation d'une feature"
+      description: "Implementation plan for a feature"
     - name: breakdown-test
-      description: "Génération de plan de tests"
+      description: "Generate a test plan"
     - name: audit-integrity
-      description: "Audit d'intégrité du code et des configurations"
+      description: "Audit the integrity of code and configurations"
 
   hooks:
     - name: tool-guardian
-      description: "Contrôle les outils utilisés par l'agent"
+      description: "Controls the tools used by the agent"
       required: true
     - name: secrets-scanner
-      description: "Détecte les secrets dans les fichiers"
+      description: "Detects secrets in files"
       required: true
     - name: governance-audit
-      description: "Audit de gouvernance du projet"
+      description: "Project governance audit"
       required: true
 
   agents:
     - name: adr-generator
       file: adr-generator.agent.md
-      description: "Génère des ADR (Architecture Decision Records)"
+      description: "Generates ADRs (Architecture Decision Records)"
     - name: prd-generator
       file: prd-generator.agent.md
-      description: "Génère des PRD (Product Requirement Documents), en amont de tout ADR"
+      description: "Generates PRDs (Product Requirement Documents), ahead of any ADR"
 
   plugins:
     - name: arch
-      description: "Assistant architecture"
+      description: "Architecture assistant"
 
   instructions:
     - name: devops-core-principles
@@ -58,7 +58,7 @@ common:
     - name: github-actions-ci-cd-best-practices
       file: github-actions-ci-cd-best-practices.instructions.md
 
-# Éléments spécifiques par type de projet
+# Items specific to each project type
 bundles:
   base:
     skills: []
@@ -70,14 +70,14 @@ bundles:
   infra:
     skills:
       - name: agent-supply-chain
-        description: "Analyse de la chaîne d'approvisionnement logicielle"
+        description: "Software supply chain analysis"
     hooks:
       - name: dependency-license-checker
-        description: "Vérifie les licences des dépendances"
+        description: "Checks dependency licenses"
       - name: fix-broken-links
-        description: "Détecte et corrige les liens brisés"
+        description: "Detects and fixes broken links"
       - name: attester-import-check
-        description: "Vérifie les imports Attester"
+        description: "Checks Attester imports"
     agents: []
     plugins: []
     instructions:
@@ -89,49 +89,49 @@ bundles:
   ai:
     skills:
       - name: acreadiness-assess
-        description: "Évaluation de la maturité AI Readiness"
+        description: "AI Readiness maturity assessment"
       - name: acreadiness-generate-instructions
-        description: "Génération d'instructions pour projets IA"
+        description: "Generates instructions for AI projects"
       - name: agent-governance
-        description: "Gouvernance des agents IA"
+        description: "AI agent governance"
       - name: agentic-eval
-        description: "Évaluation des agents"
+        description: "Agent evaluation"
       - name: ai-prompt-engineering-safety-review
-        description: "Revue de sécurité du prompt engineering"
+        description: "Prompt engineering safety review"
       - name: agent-owasp-compliance
-        description: "Conformité OWASP pour agents"
+        description: "OWASP compliance for agents"
       - name: agent-supply-chain
-        description: "Analyse supply chain pour projets IA"
+        description: "Supply chain analysis for AI projects"
     hooks:
       - name: session-logger
-        description: "Journalisation des sessions Copilot"
+        description: "Copilot session logging"
       - name: dependency-license-checker
-        description: "Vérifie les licences des dépendances"
+        description: "Checks dependency licenses"
       - name: fix-broken-links
-        description: "Détecte et corrige les liens brisés"
+        description: "Detects and fixes broken links"
       - name: attester-import-check
-        description: "Vérifie les imports Attester"
+        description: "Checks Attester imports"
       - name: session-auto-commit
-        description: "Auto-commit de session (feature branch uniquement!)"
+        description: "Session auto-commit (feature branches only!)"
         optional: true
-        warning: "JAMAIS sur main. Activer uniquement sur branches de feature."
+        warning: "NEVER on main. Enable only on feature branches."
     agents:
       - name: ai-readiness-reporter
         file: ai-readiness-reporter.agent.md
-        description: "Rapport de maturité AI Readiness"
+        description: "AI Readiness maturity report"
       - name: agent-governance-reviewer
         file: agent-governance-reviewer.agent.md
-        description: "Revue de gouvernance des agents"
+        description: "Agent governance review"
       - name: ai-team-dev
         file: ai-team-dev.agent.md
-        description: "Équipe de développement IA"
+        description: "AI development team"
     plugins:
       - name: acreadiness-cockpit
-        description: "Tableau de bord AI Readiness"
+        description: "AI Readiness dashboard"
       - name: ai-team-orchestration
-        description: "Orchestration d'équipes IA"
+        description: "AI team orchestration"
       - name: arize-ax
-        description: "Observabilité LLM avec Arize (optionnel)"
+        description: "LLM observability with Arize (optional)"
         optional: true
     instructions:
       - name: agent-safety
@@ -141,42 +141,42 @@ bundles:
       - name: ai-prompt-engineering-safety-best-practices
         file: ai-prompt-engineering-safety-best-practices.instructions.md
     arize_skills:
-      # Optionnels — pour projets IA avec observabilité LLM
+      # Optional — for AI projects with LLM observability
       optional: true
       skills:
         - name: arize-instrumentation
-          description: "Instrumentation Arize Phoenix"
+          description: "Arize Phoenix instrumentation"
         - name: arize-dataset
-          description: "Gestion des datasets Arize"
+          description: "Arize dataset management"
         - name: arize-evaluator
-          description: "Évaluation avec Arize"
+          description: "Evaluation with Arize"
         - name: arize-prompt-optimization
-          description: "Optimisation des prompts avec Arize"
+          description: "Prompt optimization with Arize"
 
   app:
     skills:
       - name: agent-owasp-compliance
-        description: "Conformité OWASP"
+        description: "OWASP compliance"
         optional: true
     hooks:
       - name: dependency-license-checker
-        description: "Vérifie les licences des dépendances"
+        description: "Checks dependency licenses"
       - name: fix-broken-links
-        description: "Détecte et corrige les liens brisés"
+        description: "Detects and fixes broken links"
     agents:
       - name: accessibility
         file: accessibility.agent.md
-        description: "Expert en accessibilité"
+        description: "Accessibility expert"
       - name: accessibility-runtime-tester
         file: accessibility-runtime-tester.agent.md
-        description: "Tests d'accessibilité runtime"
+        description: "Runtime accessibility tests"
       - name: ai-team-dev
         file: ai-team-dev.agent.md
-        description: "Équipe de développement IA"
+        description: "AI development team"
         optional: true
     plugins:
       - name: ai-team-orchestration
-        description: "Orchestration d'équipes IA"
+        description: "AI team orchestration"
         optional: true
     instructions:
       - name: a11y
@@ -184,9 +184,9 @@ bundles:
       - name: containerization-docker-best-practices
         file: containerization-docker-best-practices.instructions.md
 
-# Référence source pour vérification
+# Source reference for verification
 awesome_copilot:
   repo: github/awesome-copilot
-  # Fixer un SHA pour reproductibilité — mettre à jour manuellement
+  # Pin a SHA for reproducibility — update manually
   ref: dae77f24132c1d686c30fd5b29aee0d63668d1d2
   base_url: https://raw.githubusercontent.com/github/awesome-copilot

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# lib/fs.sh — Fonctions de manipulation de fichiers idempotentes
+# lib/fs.sh — Idempotent file manipulation functions
 # Source: source "$(dirname "$0")/lib/fs.sh"
 
-# Copie un fichier si la destination n'existe pas encore
+# Copy a file if the destination does not exist yet
 # Usage: copy_if_not_exists <src> <dest>
 copy_if_not_exists() {
   local src="$1" dest="$2"
@@ -12,10 +12,10 @@ copy_if_not_exists() {
   fi
   run_cmd mkdir -p "$(dirname "$dest")"
   run_cmd cp "$src" "$dest"
-  log_success "Créé: $dest"
+  log_success "Created: $dest"
 }
 
-# Copie un fichier en écrasant si --force, sinon saute
+# Copy a file, overwriting if --force, otherwise skip
 # Usage: copy_file <src> <dest>
 copy_file() {
   local src="$1" dest="$2"
@@ -25,23 +25,23 @@ copy_file() {
   fi
   run_cmd mkdir -p "$(dirname "$dest")"
   run_cmd cp "$src" "$dest"
-  log_success "Copié: $dest"
+  log_success "Copied: $dest"
 }
 
-# Copie un répertoire récursivement si la destination n'existe pas
+# Recursively copy a directory if the destination does not exist
 # Usage: copy_dir_if_not_exists <src_dir> <dest_dir>
 copy_dir_if_not_exists() {
   local src="$1" dest="$2"
   if [[ -d "$dest" ]] && [[ -n "$(ls -A "$dest" 2>/dev/null)" ]]; then
-    log_skip "$dest/ (répertoire existant non vide)"
+    log_skip "$dest/ (existing non-empty directory)"
     return 0
   fi
   run_cmd mkdir -p "$dest"
   run_cmd cp -r "$src/." "$dest/"
-  log_success "Répertoire copié: $dest/"
+  log_success "Directory copied: $dest/"
 }
 
-# Écrit un fichier avec substitution de placeholders
+# Write a file with placeholder substitution
 # Usage: write_template <template_file> <dest_file> [KEY=VALUE ...]
 write_template() {
   local template="$1" dest="$2"
@@ -49,7 +49,7 @@ write_template() {
   local content
   content=$(cat "$template")
 
-  # Appliquer les substitutions passées en argument
+  # Apply substitutions passed as arguments
   for substitution in "$@"; do
     local key="${substitution%%=*}"
     local value="${substitution#*=}"
@@ -57,31 +57,31 @@ write_template() {
   done
 
   if [[ "${DRY_RUN:-false}" == "true" ]]; then
-    log_dry "Écrire: $dest"
+    log_dry "Write: $dest"
     return 0
   fi
   run_cmd mkdir -p "$(dirname "$dest")"
   echo "$content" > "$dest"
-  log_success "Généré: $dest"
+  log_success "Generated: $dest"
 }
 
-# Crée un fichier vide (.gitkeep) pour les répertoires vides
+# Create an empty file (.gitkeep) for empty directories
 # Usage: ensure_dir_with_gitkeep <dir>
 ensure_dir_with_gitkeep() {
   local dir="$1"
   run_cmd mkdir -p "$dir"
   if [[ ! -f "$dir/.gitkeep" ]]; then
     run_cmd touch "$dir/.gitkeep"
-    log_verbose "Créé: $dir/.gitkeep"
+    log_verbose "Created: $dir/.gitkeep"
   fi
 }
 
-# Vérifie qu'un fichier existe, avec message d'erreur clair
+# Verify that a file exists, with a clear error message
 # Usage: require_file <path> <description>
 require_file() {
-  local path="$1" desc="${2:-fichier}"
+  local path="$1" desc="${2:-file}"
   if [[ ! -f "$path" ]]; then
-    log_error "Fichier requis introuvable: $path ($desc)"
+    log_error "Required file not found: $path ($desc)"
     return 1
   fi
 }
