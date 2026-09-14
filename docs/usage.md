@@ -61,9 +61,13 @@ Pour mettre à jour les instructions et hooks depuis `itshaker-copilot-governanc
 ```bash
 ./scripts/sync-governance.sh \
   --type base \
-  --dest /chemin/vers/mon-projet \
-  --governance-dir /chemin/vers/itshaker-copilot-governance
+  --dest /chemin/vers/mon-projet
 ```
+
+> ⚠️ `--governance-dir` n'existe pas : le chemin vers `itshaker-copilot-governance` est
+> résolu par chemin relatif fixe (`../itshaker-copilot-governance` depuis `itshaker-bootstrap`).
+> Cloner les deux repos côte à côte. Procédure complète pour aligner un repo existant :
+> voir [`docs/governance-alignment-runbook.md`](governance-alignment-runbook.md).
 
 ## Installer les éléments Awesome Copilot
 
