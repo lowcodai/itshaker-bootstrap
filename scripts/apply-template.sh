@@ -714,7 +714,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build Docker image
-        run: docker build -t ${{ github.repository }}:${{ github.sha }} .
+        run: |
+          if [ -f Dockerfile ] || find . -maxdepth 3 -iname 'Dockerfile*' -not -path './.git/*' | grep -q .; then
+            docker build -t ${{ github.repository }}:${{ github.sha }} .
+          else
+            echo "No Dockerfile found — nothing to build yet. Add one under docker/ or at the repo root to enable this check."
+          fi
 EOF
     log_success "Created: .github/workflows/docker-build.yml"
   fi
