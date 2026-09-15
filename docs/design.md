@@ -1,4 +1,4 @@
-# Design — itshaker-bootstrap
+# Design — vibecoding-bootstrap
 
 ## Design principles
 

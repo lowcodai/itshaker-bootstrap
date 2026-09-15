@@ -51,7 +51,7 @@ echo "=== Test: Extend-only mode ==="
 echo ""
 
 for type in base infra ai app; do
-  TMPDIR="/tmp/itshaker-test-extend-${type}-$$"
+  TMPDIR="/tmp/vibecoding-test-extend-${type}-$$"
   echo "[INFO] Type: $type"
 
   # Initial creation

@@ -247,7 +247,7 @@ $(for p in "${INSTALLED_PLUGINS[@]}"; do echo "- \`$p\`"; done)
 
 To update the awesome-copilot items:
 \`\`\`bash
-# From itshaker-bootstrap:
+# From vibecoding-bootstrap:
 ./scripts/install-awesome-copilot.sh --type ${TEMPLATE_TYPE} --dest . --ref <new-sha>
 \`\`\`
 

@@ -22,7 +22,7 @@ else
 fi
 
 # Test 2: dry-run does not create a directory
-TMPDIR_TEST="/tmp/itshaker-test-dryrun-$$"
+TMPDIR_TEST="/tmp/vibecoding-test-dryrun-$$"
 output=$(bash "${SCRIPTS}/apply-template.sh" \
   --type base --name test-dryrun --dest "$TMPDIR_TEST" --dry-run 2>&1)
 
@@ -40,7 +40,7 @@ else
 fi
 
 # Test 3: init-adr dry-run does not create a file
-TMPDIR_ADR="/tmp/itshaker-test-adr-$$"
+TMPDIR_ADR="/tmp/vibecoding-test-adr-$$"
 mkdir -p "$TMPDIR_ADR"
 output=$(bash "${SCRIPTS}/init-adr.sh" \
   --dest "$TMPDIR_ADR" --name test-repo --type base --dry-run 2>&1)

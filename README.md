@@ -1,12 +1,12 @@
-# itshaker-bootstrap
+# vibecoding-bootstrap
 
-> Automatic project initialization scripts from the itshaker templates.
+> Automatic project initialization scripts from the vibecoding templates.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 ## Description
 
-`itshaker-bootstrap` provides a set of shell scripts to quickly and reproducibly create new projects following itshaker standards.
+`vibecoding-bootstrap` provides a set of shell scripts to quickly and reproducibly create new projects following vibecoding standards.
 
 ## Prerequisites
 
@@ -42,10 +42,10 @@ Check with:
 
 | Type | Description | Template source |
 |------|-------------|-----------------|
-| `base` | Any new generic project | `itshaker-template-base` |
-| `infra` | Infrastructure, SRE, Ansible, Docker | `itshaker-template-infra` |
-| `ai` | AI, agents, MCP, prompts, RAG | `itshaker-template-ai` |
-| `app` | Web applications, API, MVP, SaaS | `itshaker-template-app` |
+| `base` | Any new generic project | `vibecoding-template-base` |
+| `infra` | Infrastructure, SRE, Ansible, Docker | `vibecoding-template-infra` |
+| `ai` | AI, agents, MCP, prompts, RAG | `vibecoding-template-ai` |
+| `app` | Web applications, API, MVP, SaaS | `vibecoding-template-app` |
 
 ## CLI Options
 
@@ -111,6 +111,6 @@ bash tests/test-extend-only.sh
 
 ## References
 
-- [itshaker-copilot-governance](https://github.com/lowcodai/itshaker-copilot-governance)
+- [vibecoding-copilot-governance](https://github.com/lowcodai/vibecoding-copilot-governance)
 - [github/awesome-copilot](https://github.com/github/awesome-copilot)
 - [GitHub CLI](https://cli.github.com/)

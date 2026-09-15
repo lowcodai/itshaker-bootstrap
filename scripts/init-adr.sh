@@ -57,7 +57,7 @@ generate_adr_0001() {
   # Type-specific context
   local type_context
   case "$TEMPLATE_TYPE" in
-    base)   type_context="Generic project standardized from itshaker-template-base." ;;
+    base)   type_context="Generic project standardized from vibecoding-template-base." ;;
     infra)  type_context="Infrastructure project using Ansible, Docker and GitHub Actions for IaC and SRE automation." ;;
     ai)     type_context="AI/agents project integrating AI governance, safety, and agentic usage practices for GitHub Copilot." ;;
     app)    type_context="Web/API application with CI/CD, accessibility (a11y) and good development practices." ;;
@@ -69,22 +69,22 @@ generate_adr_0001() {
 **Date:** ${DATE_TODAY}
 **Status:** Accepted
 **Decision makers:** <!-- TODO: List the decision makers -->
-**Template:** itshaker-template-${TEMPLATE_TYPE}
+**Template:** vibecoding-template-${TEMPLATE_TYPE}
 
 ## Context
 
 ${type_context}
 
-This project is initialized from the itshaker template factory, based on DevOps, SRE, AI governance and agentic GitHub Copilot usage best practices (source: [github/awesome-copilot](https://github.com/github/awesome-copilot)).
+This project is initialized from the vibecoding template factory, based on DevOps, SRE, AI governance and agentic GitHub Copilot usage best practices (source: [github/awesome-copilot](https://github.com/github/awesome-copilot)).
 
 ## Decisions
 
 ### 1. Base template
-- **Choice:** itshaker-template-${TEMPLATE_TYPE}
+- **Choice:** vibecoding-template-${TEMPLATE_TYPE}
 - **Reason:** Standardization of ${TEMPLATE_TYPE} projects within the organization
 
 ### 2. Copilot governance
-- **Choice:** Reference itshaker-copilot-governance for shared standards
+- **Choice:** Reference vibecoding-copilot-governance for shared standards
 - **Reason:** Avoid duplication, maintain a single source of truth
 
 ### 3. Branching strategy
@@ -107,7 +107,7 @@ This project is initialized from the itshaker template factory, based on DevOps,
 
 ## References
 
-- [itshaker-copilot-governance](https://github.com/lowcodai/itshaker-copilot-governance)
+- [vibecoding-copilot-governance](https://github.com/lowcodai/vibecoding-copilot-governance)
 - [github/awesome-copilot](https://github.com/github/awesome-copilot)
 - [Conventional Commits](https://www.conventionalcommits.org)
 EOF

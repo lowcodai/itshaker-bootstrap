@@ -92,7 +92,7 @@ substitute_placeholders() {
 # ─── Copy common base files ────────────────────────────────────────────────────
 apply_base_files() {
   log_section "Applying base template"
-  local template_src="${BOOTSTRAP_DIR}/../itshaker-template-base"
+  local template_src="${BOOTSTRAP_DIR}/../vibecoding-template-base"
 
   if [[ ! -d "$template_src" ]]; then
     log_warn "Template source not found: $template_src — using inline files"
@@ -283,7 +283,7 @@ EOF
 
 ## Conventions
 
-See the standards in [itshaker-copilot-governance](https://github.com/lowcodai/itshaker-copilot-governance).
+See the standards in [vibecoding-copilot-governance](https://github.com/lowcodai/vibecoding-copilot-governance).
 
 ## Conventional commits
 
@@ -415,7 +415,7 @@ ${TEMPLATE_TYPE}
 <!-- TODO: Describe the project context for Copilot agents -->
 
 ## Standards
-- Follow the conventions defined in [itshaker-copilot-governance](https://github.com/lowcodai/itshaker-copilot-governance)
+- Follow the conventions defined in [vibecoding-copilot-governance](https://github.com/lowcodai/vibecoding-copilot-governance)
 - Use conventional commits
 - Document architecture decisions in docs/adr/
 

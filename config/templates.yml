@@ -26,13 +26,13 @@ defaults: &defaults
 templates:
   base:
     <<: *defaults
-    source_repo: itshaker-template-base
+    source_repo: vibecoding-template-base
     description: "Generic template for any new project"
     extra_files: []
 
   infra:
     <<: *defaults
-    source_repo: itshaker-template-infra
+    source_repo: vibecoding-template-infra
     description: "Template for infrastructure, SRE, Ansible, Docker, monitoring projects"
     extra_files:
       - ansible/inventory/.gitkeep
@@ -48,7 +48,7 @@ templates:
 
   ai:
     <<: *defaults
-    source_repo: itshaker-template-ai
+    source_repo: vibecoding-template-ai
     description: "Template for AI, agents, MCP, prompts, RAG, LLM Wiki projects"
     extra_files:
       - agents/.gitkeep
@@ -61,7 +61,7 @@ templates:
 
   app:
     <<: *defaults
-    source_repo: itshaker-template-app
+    source_repo: vibecoding-template-app
     description: "Template for web applications, APIs, MVPs, portals, SaaS or internal tools"
     extra_files:
       - src/.gitkeep

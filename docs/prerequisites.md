@@ -1,4 +1,4 @@
-# Prerequisites — itshaker-bootstrap
+# Prerequisites — vibecoding-bootstrap
 
 ## Required tools
 
@@ -44,7 +44,7 @@ gh auth login
 
 ## Note on macOS bash
 
-macOS ships bash 3.x by default (`/bin/bash`). The itshaker scripts require bash ≥ 4.
+macOS ships bash 3.x by default (`/bin/bash`). The vibecoding scripts require bash ≥ 4.
 
 ```bash
 bash --version  # If < 4.x

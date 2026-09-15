@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# sync-governance.sh — Synchronizes governance items from itshaker-copilot-governance
+# sync-governance.sh — Synchronizes governance items from vibecoding-copilot-governance
 # Usage: ./scripts/sync-governance.sh --type <base|infra|ai|app> --dest <dest-dir>
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BOOTSTRAP_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
-GOVERNANCE_DIR="${BOOTSTRAP_DIR}/../itshaker-copilot-governance"
+GOVERNANCE_DIR="${BOOTSTRAP_DIR}/../vibecoding-copilot-governance"
 source "${SCRIPT_DIR}/lib/log.sh"
 source "${SCRIPT_DIR}/lib/fs.sh"
 
@@ -284,8 +284,8 @@ main() {
   log_section "Governance synchronization → $DEST_DIR (type: $TEMPLATE_TYPE)"
 
   if [[ ! -d "$GOVERNANCE_DIR" ]]; then
-    log_warn "itshaker-copilot-governance not found: $GOVERNANCE_DIR"
-    log_info "Synchronization skipped — create itshaker-copilot-governance first"
+    log_warn "vibecoding-copilot-governance not found: $GOVERNANCE_DIR"
+    log_info "Synchronization skipped — create vibecoding-copilot-governance first"
     return 0
   fi
 

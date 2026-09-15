@@ -86,7 +86,7 @@ check_gh_skills_support() {
 
 # ─── Main ───────────────────────────────────────────────────────────────────
 
-log_section "Checking itshaker-bootstrap prerequisites"
+log_section "Checking vibecoding-bootstrap prerequisites"
 echo ""
 
 log_info "Required tools:"

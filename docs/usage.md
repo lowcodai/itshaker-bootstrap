@@ -1,10 +1,10 @@
-# Usage guide — itshaker-bootstrap
+# Usage guide — vibecoding-bootstrap
 
 ## Installation
 
 ```bash
-git clone https://github.com/lowcodai/itshaker-bootstrap
-cd itshaker-bootstrap
+git clone https://github.com/lowcodai/vibecoding-bootstrap
+cd vibecoding-bootstrap
 ./scripts/check-prerequisites.sh
 ```
 
@@ -44,7 +44,7 @@ The script asks the following questions:
 
 ```bash
 cd /path/to/my-project
-cd ../itshaker-bootstrap
+cd ../vibecoding-bootstrap
 
 ./scripts/new-project.sh \
   --type base \
@@ -56,7 +56,7 @@ cd ../itshaker-bootstrap
 
 ## Synchronizing governance
 
-To update the instructions and hooks from `itshaker-copilot-governance`:
+To update the instructions and hooks from `vibecoding-copilot-governance`:
 
 ```bash
 ./scripts/sync-governance.sh \
@@ -64,8 +64,8 @@ To update the instructions and hooks from `itshaker-copilot-governance`:
   --dest /path/to/my-project
 ```
 
-> ⚠️ `--governance-dir` does not exist: the path to `itshaker-copilot-governance` is
-> resolved via a fixed relative path (`../itshaker-copilot-governance` from `itshaker-bootstrap`).
+> ⚠️ `--governance-dir` does not exist: the path to `vibecoding-copilot-governance` is
+> resolved via a fixed relative path (`../vibecoding-copilot-governance` from `vibecoding-bootstrap`).
 > Clone both repos side by side. Full procedure to align an existing repo:
 > see [`docs/governance-alignment-runbook.md`](governance-alignment-runbook.md).
 
@@ -81,8 +81,8 @@ To update the instructions and hooks from `itshaker-copilot-governance`:
 
 | Variable | Default | Description |
 |----------|--------|-------------|
-| `ITSHAKER_GOVERNANCE_DIR` | `../itshaker-copilot-governance` | Local path to governance |
-| `ITSHAKER_GITHUB_ORG` | (empty) | Default GitHub organization |
+| `VIBECODING_GOVERNANCE_DIR` | `../vibecoding-copilot-governance` | Local path to governance |
+| `VIBECODING_GITHUB_ORG` | (empty) | Default GitHub organization |
 | `GITHUB_TOKEN` | (via gh auth) | Token for GitHub API operations |
 
 ## Troubleshooting

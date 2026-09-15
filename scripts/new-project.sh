@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# new-project.sh — Main entry point of the itshaker factory
+# new-project.sh — Main entry point of the vibecoding factory
 #
 # Usage: ./scripts/new-project.sh [OPTIONS]
 #
@@ -56,7 +56,7 @@ WARNINGS_LIST=()
 # ─── Help ──────────────────────────────────────────────────────────────────────
 show_help() {
   cat << 'EOF'
-itshaker-bootstrap — GitHub Template Factory
+vibecoding-bootstrap — GitHub Template Factory
 
 Usage:
   ./scripts/new-project.sh [OPTIONS]
@@ -91,9 +91,9 @@ Examples:
   ./scripts/new-project.sh -t base -n my-project --extend-only --no-github
 
 Sources:
-  Templates:   https://github.com/lowcodai/itshaker-template-{base,infra,ai,app}
-  Governance:  https://github.com/lowcodai/itshaker-copilot-governance
-  Bootstrap:   https://github.com/lowcodai/itshaker-bootstrap
+  Templates:   https://github.com/lowcodai/vibecoding-template-{base,infra,ai,app}
+  Governance:  https://github.com/lowcodai/vibecoding-copilot-governance
+  Bootstrap:   https://github.com/lowcodai/vibecoding-bootstrap
   Awesome Copilot: https://github.com/github/awesome-copilot
 EOF
 }
@@ -159,7 +159,7 @@ validate_inputs() {
 # ─── Interactive parameter collection ──────────────────────────────────────────
 collect_interactive_params() {
   echo ""
-  log_section "itshaker-bootstrap — New project"
+  log_section "vibecoding-bootstrap — New project"
   echo ""
 
   # Template type
@@ -389,7 +389,7 @@ step_finalize() {
     # Write the bootstrap log into the project
     local log_file="${OUTPUT_DIR}/.bootstrap-log.txt"
     {
-      echo "# itshaker-bootstrap — Creation log"
+      echo "# vibecoding-bootstrap — Creation log"
       echo "Date: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
       echo "Type: ${TEMPLATE_TYPE}"
       echo "Repo: ${REPO_NAME}"

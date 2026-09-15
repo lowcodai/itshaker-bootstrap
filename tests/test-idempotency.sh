@@ -7,7 +7,7 @@ SCRIPTS="${BOOTSTRAP_DIR}/scripts"
 
 PASS=0
 FAIL=0
-TMPDIR_BASE="/tmp/itshaker-test-idempotency-$$"
+TMPDIR_BASE="/tmp/vibecoding-test-idempotency-$$"
 
 pass() { echo "[PASS] $1"; PASS=$((PASS + 1)); }
 fail() { echo "[FAIL] $1"; FAIL=$((FAIL + 1)); }

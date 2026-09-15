@@ -1,7 +1,7 @@
-# Runbook — Aligning an existing repo on itshaker governance + the Hermes contract
+# Runbook — Aligning an existing repo on vibecoding governance + the Hermes contract
 
 **Scope:** any `lowcodai/*` repo you want to bring in line with the
-`itshaker-copilot-governance` structure (Copilot instructions/hooks/agents) and the Hermes
+`vibecoding-copilot-governance` structure (Copilot instructions/hooks/agents) and the Hermes
 continuity contract (`.hermes.md` + `docs/operations/{CURRENT,HANDOFF,ACTIVITY}.md`).
 **Audience:** Arcane (execution) + Capitaine (review/validation).
 **Origin:** actually applied on 2026-09-14 to 6 repos (governance, bootstrap, 4
@@ -12,16 +12,16 @@ ticket `#6` and `CHANGELOG.md` (2026-09-14) for the history of reference commits
 
 ## Step 0 — Folder layout prerequisites
 
-`sync-governance.sh` resolves `itshaker-copilot-governance` via a **fixed relative path**
-(`${BOOTSTRAP_DIR}/../itshaker-copilot-governance`) — **known pitfall:** `docs/usage.md`
+`sync-governance.sh` resolves `vibecoding-copilot-governance` via a **fixed relative path**
+(`${BOOTSTRAP_DIR}/../vibecoding-copilot-governance`) — **known pitfall:** `docs/usage.md`
 documents a `--governance-dir` flag, but it does not exist in the actual script (verified
 2026-09-14 via grep on `scripts/sync-governance.sh`). Do not rely on it until the doc
 is fixed or the flag is added. So clone both repos **side by side**:
 
 ```bash
-mkdir -p /opt/data/workspace/itshaker-align && cd /opt/data/workspace/itshaker-align
-gh repo clone lowcodai/itshaker-copilot-governance
-gh repo clone lowcodai/itshaker-bootstrap
+mkdir -p /opt/data/workspace/vibecoding-align && cd /opt/data/workspace/vibecoding-align
+gh repo clone lowcodai/vibecoding-copilot-governance
+gh repo clone lowcodai/vibecoding-bootstrap
 gh repo clone lowcodai/<repo-to-align>
 ```
 
@@ -38,7 +38,7 @@ missing, and never overwrites).
 ## Step 2 — Mandatory dry-run before any write
 
 ```bash
-cd itshaker-bootstrap
+cd vibecoding-bootstrap
 DRY_RUN=true ./scripts/sync-governance.sh \
   --type <base|infra|ai|app> \
   --dest ../<repo-to-align> \
@@ -105,7 +105,7 @@ was not respected or that a regression bug has reappeared.
 
 ```bash
 git add .hermes.md docs/operations/ instructions/ hooks/ agents/ 2>/dev/null
-git commit -m "feat(hermes): Hermes continuity contract + Copilot governance (aligned with itshaker-copilot-governance)"
+git commit -m "feat(hermes): Hermes continuity contract + Copilot governance (aligned with vibecoding-copilot-governance)"
 git push origin main
 ```
 
